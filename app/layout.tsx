@@ -36,7 +36,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bodyFont.variable} ${codeFont.variable} h-full`}>
+    <html
+      lang="en"
+      className={`${bodyFont.variable} ${codeFont.variable} h-full`}
+      suppressHydrationWarning
+    >
       <body className="bg-bg text-text flex h-full min-h-screen flex-col font-sans antialiased md:flex-row">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <VisitTracker />
