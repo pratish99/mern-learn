@@ -41,14 +41,14 @@ export default function RootLayout({
       className={`${bodyFont.variable} ${codeFont.variable} h-full`}
       suppressHydrationWarning
     >
-      <body className="bg-bg text-text flex h-full min-h-screen flex-col font-sans antialiased md:flex-row">
+      <body className="bg-bg text-text min-h-screen font-sans antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <VisitTracker />
         <MobileNav />
-        <div className="border-border bg-bg-elevated sticky top-0 hidden h-screen w-64 shrink-0 self-start border-r md:block">
+        <div className="border-border bg-bg-elevated fixed inset-y-0 left-0 hidden w-64 border-r md:block">
           <Sidebar />
         </div>
-        <main className="min-w-0 flex-1">
+        <main className="min-w-0 md:ml-64">
           <PageTransition>{children}</PageTransition>
         </main>
       </body>
