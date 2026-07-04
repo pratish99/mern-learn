@@ -7,7 +7,10 @@ export interface CodeExample {
 export interface TestCase {
   name: string;
   args: unknown[];
-  expected: unknown;
+  /** Expected return value (or resolved value, for async functions). */
+  expected?: unknown;
+  /** If set, the call/promise is expected to throw/reject with a message containing this substring. */
+  expectedError?: string;
 }
 
 export interface Challenge {
