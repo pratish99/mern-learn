@@ -93,27 +93,27 @@ export shim, so return the module object itself unchanged.`,
     testCases: [
       {
         name: "unwraps a default export",
-        args: [{ default: 42, __esModule: true }],
+        args: () => [{ default: 42, __esModule: true }],
         expected: 42,
       },
       {
         name: "returns object with no default export",
-        args: [{ foo: "bar" }],
+        args: () => [{ foo: "bar" }],
         expected: { foo: "bar" },
       },
       {
         name: "unwraps a falsy default export",
-        args: [{ default: 0 }],
+        args: () => [{ default: 0 }],
         expected: 0,
       },
       {
         name: "unwraps a null default export",
-        args: [{ default: null }],
+        args: () => [{ default: null }],
         expected: null,
       },
       {
         name: "unwraps a function-shaped default",
-        args: [{ default: "greet-fn-placeholder" }],
+        args: () => [{ default: "greet-fn-placeholder" }],
         expected: "greet-fn-placeholder",
       },
     ],

@@ -116,7 +116,7 @@ must resolve with result. fn may call its callback asynchronously.`,
     testCases: [
       {
         name: "resolves with the callback result",
-        args: [
+        args: () => [
           function readValue(value: number, cb: (err: Error | null, result?: number) => void) {
             setTimeout(() => cb(null, value * 2), 0);
           },
@@ -126,7 +126,7 @@ must resolve with result. fn may call its callback asynchronously.`,
       },
       {
         name: "resolves with a zero result",
-        args: [
+        args: () => [
           function readValue(value: number, cb: (err: Error | null, result?: number) => void) {
             setTimeout(() => cb(null, value * 2), 0);
           },
@@ -136,7 +136,7 @@ must resolve with result. fn may call its callback asynchronously.`,
       },
       {
         name: "rejects with the callback error",
-        args: [
+        args: () => [
           function readValue(value: number, cb: (err: Error | null, result?: number) => void) {
             setTimeout(() => {
               if (value < 0) cb(new Error("negative value"));
@@ -149,7 +149,7 @@ must resolve with result. fn may call its callback asynchronously.`,
       },
       {
         name: "works with a synchronously-invoked callback",
-        args: [
+        args: () => [
           function immediate(value: number, cb: (err: Error | null, result?: number) => void) {
             cb(null, value + 1);
           },

@@ -85,11 +85,11 @@ Return 0 for n <= 0.`,
   return total;
 }`,
     testCases: [
-      { name: "sums 1..5", args: [5], expected: 15 },
-      { name: "sums 1..100", args: [100], expected: 5050 },
-      { name: "zero for n = 0", args: [0], expected: 0 },
-      { name: "zero for negative n", args: [-10], expected: 0 },
-      { name: "single element", args: [1], expected: 1 },
+      { name: "sums 1..5", args: () => [5], expected: 15 },
+      { name: "sums 1..100", args: () => [100], expected: 5050 },
+      { name: "zero for n = 0", args: () => [0], expected: 0 },
+      { name: "zero for negative n", args: () => [-10], expected: 0 },
+      { name: "single element", args: () => [1], expected: 1 },
     ],
   },
 };

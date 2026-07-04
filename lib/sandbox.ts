@@ -1,4 +1,6 @@
 import vm from "node:vm";
+import { EventEmitter } from "node:events";
+import { Readable, Writable, Duplex, Transform } from "node:stream";
 import type { Challenge, TestCase } from "@/lib/types";
 import { deepEqual } from "@/lib/deep-equal";
 
@@ -91,6 +93,12 @@ function createSandbox() {
     Map,
     Set,
     Symbol,
+    Buffer,
+    EventEmitter,
+    Readable,
+    Writable,
+    Duplex,
+    Transform,
   };
 
   const context = vm.createContext(sandbox);
@@ -109,7 +117,7 @@ async function runTestCase(
   functionName: string,
   testCase: TestCase
 ): Promise<TestCaseResult> {
-  (context as Record<string, unknown>).__args__ = testCase.args;
+  (context as Record<string, unknown>).__args__ = testCase.args();
 
   let rawResult: unknown;
   try {
@@ -119,7 +127,11 @@ async function runTestCase(
     invocation.runInContext(context, { timeout: EXECUTION_TIMEOUT_MS });
     rawResult = (context as Record<string, unknown>).__result__;
   } catch (err) {
-    return { name: testCase.name, passed: false, error: describeError(err) };
+    const message = describeError(err);
+    if (testCase.expectedError) {
+      return { name: testCase.name, passed: message.includes(testCase.expectedError), error: message };
+    }
+    return { name: testCase.name, passed: false, error: message };
   }
 
   let resolved: unknown;
