@@ -4,6 +4,7 @@ import { TOPICS } from "@/lib/topics";
 import { getModuleById } from "@/content";
 import Markdown from "@/components/Markdown";
 import CodeBlock from "@/components/CodeBlock";
+import ChallengeEditor from "@/components/ChallengeEditor";
 
 export function generateStaticParams() {
   return TOPICS.map((topic) => ({ id: topic.id }));
@@ -48,14 +49,16 @@ export default async function ModulePage({
             <h2 className="text-text-faint mb-3 text-xs font-semibold tracking-wider uppercase">
               Challenge
             </h2>
-            <div className="border-border bg-surface rounded-lg border px-5 py-6">
-              <p className="text-text whitespace-pre-line text-sm leading-6">
-                {mod.challenge.prompt}
-              </p>
-              <p className="text-text-faint mt-4 text-xs">
-                The interactive editor for this challenge is coming in the
-                next phase.
-              </p>
+            <div className="flex flex-col gap-4">
+              <div className="border-border bg-surface rounded-lg border px-5 py-6">
+                <p className="text-text whitespace-pre-line text-sm leading-6">
+                  {mod.challenge.prompt}
+                </p>
+              </div>
+              <ChallengeEditor
+                moduleId={mod.id}
+                starterCode={mod.challenge.starterCode}
+              />
             </div>
           </section>
         </div>
