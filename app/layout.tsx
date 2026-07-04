@@ -41,7 +41,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <VisitTracker />
         <MobileNav />
-        <div className="border-border bg-bg-elevated hidden w-64 shrink-0 border-r md:block">
+        <div className="border-border bg-bg-elevated sticky top-0 hidden h-screen w-64 shrink-0 self-start border-r md:block">
           <Sidebar />
         </div>
         <main className="min-w-0 flex-1">
