@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Sidebar from "@/components/Sidebar";
+import PageTransition from "@/components/PageTransition";
 import "./globals.css";
 
 const bodyFont = Inter({
@@ -29,7 +30,9 @@ export default function RootLayout({
         <div className="border-border bg-bg-elevated hidden w-64 shrink-0 border-r md:block">
           <Sidebar />
         </div>
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 flex-1">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </body>
     </html>
   );

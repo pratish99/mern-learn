@@ -1,8 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useProgressStore } from "@/store/progress-store";
+import Spinner from "@/components/Spinner";
+import Celebration from "@/components/Celebration";
 
 interface TestCaseResult {
   name: string;
@@ -45,6 +49,21 @@ const handleEditorMount: OnMount = (_editor, monaco) => {
   monaco.editor.setTheme("node-revision-dark");
 };
 
+const listVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2 } },
+};
+
+const iconVariants = {
+  hidden: { scale: 0 },
+  visible: { scale: 1, transition: { type: "spring" as const, stiffness: 500, damping: 15 } },
+};
+
 export default function ChallengeEditor({
   moduleId,
   starterCode,
@@ -56,6 +75,14 @@ export default function ChallengeEditor({
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<RunResult | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
+  const [celebrationId, setCelebrationId] = useState<number | null>(null);
+  const markCompleted = useProgressStore((s) => s.markCompleted);
+
+  useEffect(() => {
+    if (!celebrationId) return;
+    const timer = setTimeout(() => setCelebrationId(null), 1400);
+    return () => clearTimeout(timer);
+  }, [celebrationId]);
 
   async function runCode() {
     setRunning(true);
@@ -74,6 +101,10 @@ export default function ChallengeEditor({
       }
       const data: RunResult = await res.json();
       setResult(data);
+      if (data.ok) {
+        markCompleted(moduleId);
+        setCelebrationId(Date.now());
+      }
     } catch {
       setRequestError("Could not reach the code runner. Check your connection and try again.");
     } finally {
@@ -100,46 +131,85 @@ export default function ChallengeEditor({
             <button
               onClick={runCode}
               disabled={running}
-              className="bg-accent text-bg rounded-md px-3 py-1.5 text-xs font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="bg-accent text-bg flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
             >
+              {running && <Spinner />}
               {running ? "Running…" : "Run tests"}
             </button>
           </div>
         </div>
-        <Editor
-          height="320px"
-          language="javascript"
-          value={code}
-          onChange={(value) => setCode(value ?? "")}
-          onMount={handleEditorMount}
-          theme="node-revision-dark"
-          options={{
-            minimap: { enabled: false },
-            fontSize: 13,
-            fontFamily: "var(--font-code)",
-            scrollBeyondLastLine: false,
-            padding: { top: 16 },
-          }}
-        />
+        <div className="relative">
+          <Editor
+            height="320px"
+            language="javascript"
+            value={code}
+            onChange={(value) => setCode(value ?? "")}
+            onMount={handleEditorMount}
+            theme="node-revision-dark"
+            options={{
+              minimap: { enabled: false },
+              fontSize: 13,
+              fontFamily: "var(--font-code)",
+              scrollBeyondLastLine: false,
+              padding: { top: 16 },
+            }}
+          />
+          <AnimatePresence>
+            {running && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="bg-bg/40 pointer-events-none absolute inset-0 flex items-start justify-center pt-6"
+              >
+                <div className="border-border bg-surface flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs shadow-lg">
+                  <Spinner className="border-text-faint/30 border-t-accent inline-block h-3.5 w-3.5 rounded-full border-2" />
+                  Executing in sandbox…
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      {requestError && (
-        <div className="border-error/40 bg-error-soft text-error rounded-lg border px-4 py-3 text-sm">
-          {requestError}
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {requestError && (
+          <motion.div
+            key="request-error"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="border-error/40 bg-error-soft text-error rounded-lg border px-4 py-3 text-sm"
+          >
+            {requestError}
+          </motion.div>
+        )}
 
-      {result?.compileError && (
-        <div className="border-error/40 bg-error-soft text-error rounded-lg border px-4 py-3 font-mono text-sm">
-          {result.compileError}
-        </div>
-      )}
+        {result?.compileError && (
+          <motion.div
+            key="compile-error"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="border-error/40 bg-error-soft text-error rounded-lg border px-4 py-3 font-mono text-sm"
+          >
+            {result.compileError}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {result && !result.compileError && (
-        <div className="flex flex-col gap-2">
+        <motion.div
+          variants={listVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-2"
+        >
           {result.results.map((r) => (
-            <div
+            <motion.div
               key={r.name}
+              variants={itemVariants}
               className={cn(
                 "flex flex-col gap-1 rounded-lg border px-4 py-3 text-sm",
                 r.passed
@@ -148,9 +218,12 @@ export default function ChallengeEditor({
               )}
             >
               <div className="flex items-center gap-2">
-                <span className={r.passed ? "text-success" : "text-error"}>
+                <motion.span
+                  variants={iconVariants}
+                  className={r.passed ? "text-success" : "text-error"}
+                >
                   {r.passed ? "✓" : "✗"}
-                </span>
+                </motion.span>
                 <span className="text-text font-medium">{r.name}</span>
               </div>
               {!r.passed && (
@@ -165,13 +238,18 @@ export default function ChallengeEditor({
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           ))}
-          <p className="text-text-muted mt-1 text-xs">
-            {result.results.filter((r) => r.passed).length} / {result.results.length} tests
-            passing
-          </p>
-        </div>
+          <div className="mt-1 flex items-center gap-3">
+            <p className="text-text-muted text-xs">
+              {result.results.filter((r) => r.passed).length} / {result.results.length} tests
+              passing
+            </p>
+            <AnimatePresence>
+              {celebrationId && <Celebration id={celebrationId} />}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       )}
     </div>
   );
