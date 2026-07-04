@@ -47,10 +47,12 @@ function CheckDot() {
 export default function Sidebar() {
   const pathname = usePathname();
   const hydrated = useHydrated();
-  const completed = useProgressStore((s) => s.completed);
+  const modules = useProgressStore((s) => s.modules);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
-  const completedCount = hydrated ? Object.keys(completed).length : 0;
+  const completedCount = hydrated
+    ? Object.values(modules).filter((m) => m.completed).length
+    : 0;
   const overallPct = Math.round((completedCount / TOPICS.length) * 100);
 
   return (
@@ -83,7 +85,7 @@ export default function Sidebar() {
           if (topics.length === 0) return null;
 
           const isCollapsed = collapsed[category] ?? false;
-          const categoryDone = topics.filter((t) => hydrated && completed[t.id]).length;
+          const categoryDone = topics.filter((t) => hydrated && modules[t.id]?.completed).length;
 
           return (
             <div key={category} className="flex flex-col">
@@ -137,7 +139,7 @@ export default function Sidebar() {
                               {String(topic.order).padStart(2, "0")}
                             </span>
                             <span className="z-10 flex-1">{topic.title}</span>
-                            {hydrated && completed[topic.id] && (
+                            {hydrated && modules[topic.id]?.completed && (
                               <span className="z-10">
                                 <CheckDot />
                               </span>

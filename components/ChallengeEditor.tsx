@@ -76,7 +76,13 @@ export default function ChallengeEditor({
   const [result, setResult] = useState<RunResult | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [celebrationId, setCelebrationId] = useState<number | null>(null);
+  const markViewed = useProgressStore((s) => s.markViewed);
+  const markAttempted = useProgressStore((s) => s.markAttempted);
   const markCompleted = useProgressStore((s) => s.markCompleted);
+
+  useEffect(() => {
+    markViewed(moduleId);
+  }, [markViewed, moduleId]);
 
   useEffect(() => {
     if (!celebrationId) return;
@@ -88,6 +94,7 @@ export default function ChallengeEditor({
     setRunning(true);
     setRequestError(null);
     setResult(null);
+    markAttempted(moduleId);
     try {
       const res = await fetch("/api/run-code", {
         method: "POST",
