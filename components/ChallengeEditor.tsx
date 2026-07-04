@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -30,24 +30,6 @@ function formatValue(value: unknown): string {
     return String(value);
   }
 }
-
-const handleEditorMount: OnMount = (_editor, monaco) => {
-  monaco.editor.defineTheme("node-revision-dark", {
-    base: "vs-dark",
-    inherit: true,
-    rules: [],
-    colors: {
-      "editor.background": "#141922",
-      "editor.foreground": "#e4e7ee",
-      "editorLineNumber.foreground": "#5b6270",
-      "editorLineNumber.activeForeground": "#8b93a3",
-      "editor.selectionBackground": "#244a5c",
-      "editorCursor.foreground": "#5ac8fa",
-      "editorGutter.background": "#141922",
-    },
-  });
-  monaco.editor.setTheme("node-revision-dark");
-};
 
 const listVariants = {
   hidden: {},
@@ -91,6 +73,7 @@ export default function ChallengeEditor({
   }, [celebrationId]);
 
   async function runCode() {
+    if (running) return;
     setRunning(true);
     setRequestError(null);
     setResult(null);
@@ -119,12 +102,39 @@ export default function ChallengeEditor({
     }
   }
 
+  const runCodeRef = useRef(runCode);
+  useEffect(() => {
+    runCodeRef.current = runCode;
+  });
+
+  const handleEditorMount: OnMount = (editor, monaco) => {
+    monaco.editor.defineTheme("node-revision-dark", {
+      base: "vs-dark",
+      inherit: true,
+      rules: [],
+      colors: {
+        "editor.background": "#141922",
+        "editor.foreground": "#e4e7ee",
+        "editorLineNumber.foreground": "#5b6270",
+        "editorLineNumber.activeForeground": "#8b93a3",
+        "editor.selectionBackground": "#244a5c",
+        "editorCursor.foreground": "#5ac8fa",
+        "editorGutter.background": "#141922",
+      },
+    });
+    monaco.editor.setTheme("node-revision-dark");
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      runCodeRef.current();
+    });
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="border-border overflow-hidden rounded-lg border">
         <div className="border-border bg-bg-elevated text-text-muted flex items-center justify-between border-b px-4 py-2">
           <span className="font-mono text-xs">editor.js</span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <span className="text-text-faint hidden text-xs sm:inline">Ctrl/Cmd+Enter to run</span>
             <button
               onClick={() => {
                 setCode(starterCode);
@@ -138,6 +148,7 @@ export default function ChallengeEditor({
             <button
               onClick={runCode}
               disabled={running}
+              title="Run tests (Ctrl/Cmd+Enter)"
               className="bg-accent text-bg flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {running && <Spinner />}
@@ -227,10 +238,12 @@ export default function ChallengeEditor({
               <div className="flex items-center gap-2">
                 <motion.span
                   variants={iconVariants}
+                  aria-hidden="true"
                   className={r.passed ? "text-success" : "text-error"}
                 >
                   {r.passed ? "✓" : "✗"}
                 </motion.span>
+                <span className="sr-only">{r.passed ? "Passed: " : "Failed: "}</span>
                 <span className="text-text font-medium">{r.name}</span>
               </div>
               {!r.passed && (

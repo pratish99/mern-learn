@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Node.js Concept Revision
 
-## Getting Started
+An interactive app for revising Node.js fundamentals: read a short
+explanation, look at a couple of code examples, then solve a hands-on
+coding challenge in an in-browser editor with automated tests.
 
-First, run the development server:
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- Framer Motion for animations
+- Monaco Editor for the code editor
+- Zustand (+ localStorage) for client-side progress tracking
+- Node's built-in `vm` module, in an API route, for sandboxed code execution
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Other scripts:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build   # production build
+npm run start   # run the production build
+npm run lint    # eslint
+```
 
-## Learn More
+## How code execution works
 
-To learn more about Next.js, take a look at the following resources:
+Submitted code never touches the filesystem, network, or `process` — it
+runs in a `node:vm` context exposing only safe globals (`console`,
+timers, `Promise`, `EventEmitter`, `Buffer`, stream classes, etc.), with a
+2-second execution timeout per test case. See `lib/sandbox.ts` and
+`app/api/run-code/route.ts`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Content
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Module content (explanation, examples, challenge, test cases) lives in
+`content/modules/*.ts` as plain typed data — no database or CMS. A dev
+script validates that every challenge's reference solution actually
+passes its own test cases:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+node --experimental-strip-types --no-warnings scripts/validate-content.mjs
+```

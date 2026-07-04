@@ -8,6 +8,7 @@ import { CATEGORY_ORDER, TOPICS } from "@/lib/topics";
 import { cn } from "@/lib/utils";
 import { useProgressStore } from "@/store/progress-store";
 import { useHydrated } from "@/lib/use-hydrated";
+import ThemeToggle from "@/components/ThemeToggle";
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -18,6 +19,7 @@ function ChevronIcon({ open }: { open: boolean }) {
       height="10"
       viewBox="0 0 10 10"
       fill="none"
+      aria-hidden="true"
       className="text-text-faint shrink-0"
     >
       <path
@@ -37,6 +39,7 @@ function CheckDot() {
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       transition={{ type: "spring", stiffness: 500, damping: 20 }}
+      aria-hidden="true"
       className="bg-success text-bg flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold"
     >
       ✓
@@ -44,7 +47,7 @@ function CheckDot() {
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const hydrated = useHydrated();
   const modules = useProgressStore((s) => s.modules);
@@ -56,8 +59,8 @@ export default function Sidebar() {
   const overallPct = Math.round((completedCount / TOPICS.length) * 100);
 
   return (
-    <nav className="flex h-full flex-col gap-6 overflow-y-auto px-4 py-6">
-      <Link href="/" className="flex items-center gap-2 px-2">
+    <nav aria-label="Module navigation" className="flex h-full flex-col gap-6 overflow-y-auto px-4 py-6">
+      <Link href="/" onClick={onNavigate} className="flex items-center gap-2 px-2">
         <span className="text-accent font-mono text-lg font-semibold">{"</>"}</span>
         <span className="font-semibold tracking-tight">Node Revision</span>
       </Link>
@@ -93,6 +96,7 @@ export default function Sidebar() {
                 onClick={() =>
                   setCollapsed((prev) => ({ ...prev, [category]: !isCollapsed }))
                 }
+                aria-expanded={!isCollapsed}
                 className="text-text-faint hover:text-text-muted flex items-center justify-between rounded-md px-2 py-1.5 text-xs font-semibold tracking-wider uppercase transition-colors"
               >
                 <span className="flex items-center gap-1.5">
@@ -121,6 +125,7 @@ export default function Sidebar() {
                           <Link
                             key={topic.id}
                             href={href}
+                            onClick={onNavigate}
                             className={cn(
                               "relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
                               active
@@ -159,6 +164,7 @@ export default function Sidebar() {
       <div className="mt-auto flex flex-col gap-1 border-t pt-4">
         <Link
           href="/progress"
+          onClick={onNavigate}
           className={cn(
             "relative rounded-md px-2 py-1.5 text-sm transition-colors",
             pathname === "/progress"
@@ -168,6 +174,7 @@ export default function Sidebar() {
         >
           Progress
         </Link>
+        <ThemeToggle />
       </div>
     </nav>
   );

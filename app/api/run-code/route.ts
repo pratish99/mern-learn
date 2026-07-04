@@ -24,6 +24,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: `Unknown module "${moduleId}".` }, { status: 404 });
   }
 
-  const result = await runChallenge(code, mod.challenge);
-  return NextResponse.json(result);
+  try {
+    const result = await runChallenge(code, mod.challenge);
+    return NextResponse.json(result);
+  } catch {
+    return NextResponse.json(
+      { error: "The code runner hit an unexpected error. Please try again." },
+      { status: 500 }
+    );
+  }
 }
