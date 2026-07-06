@@ -1,4 +1,4 @@
-export type Track = "node" | "javascript";
+export type Track = "node" | "javascript" | "express";
 
 export interface Topic {
   id: string;
@@ -11,6 +11,7 @@ export interface Topic {
 export const TRACKS: { id: Track; label: string }[] = [
   { id: "node", label: "Node.js" },
   { id: "javascript", label: "JavaScript" },
+  { id: "express", label: "Express.js" },
 ];
 
 export const CATEGORY_ORDER_BY_TRACK: Record<Track, readonly string[]> = {
@@ -22,6 +23,7 @@ export const CATEGORY_ORDER_BY_TRACK: Record<Track, readonly string[]> = {
     "Data Structures & Iteration",
     "Metaprogramming & Patterns",
   ],
+  express: ["Fundamentals", "Middleware & Routing", "APIs & Data", "Auth & Security", "Reliability & Tooling"],
 };
 
 // Kept for the handful of call sites that don't (yet) need to be track-aware.
@@ -59,4 +61,17 @@ export const TOPICS: Topic[] = [
   { id: "js-symbols", title: "Symbols & well-known symbols", category: "Metaprogramming & Patterns", order: 13, track: "javascript" },
   { id: "js-regex-basics", title: "Regular expressions basics", category: "Metaprogramming & Patterns", order: 14, track: "javascript" },
   { id: "js-proxy-reflect", title: "Proxy & Reflect", category: "Metaprogramming & Patterns", order: 15, track: "javascript" },
+
+  { id: "express-app-basics", title: "Express app basics & routing", category: "Fundamentals", order: 1, track: "express" },
+  { id: "express-routing-params", title: "Route parameters & query strings", category: "Fundamentals", order: 2, track: "express" },
+  { id: "express-request-response", title: "Request & response objects", category: "Fundamentals", order: 3, track: "express" },
+  { id: "express-middleware-basics", title: "Middleware fundamentals", category: "Middleware & Routing", order: 4, track: "express" },
+  { id: "express-router-module", title: "The Router & mounting", category: "Middleware & Routing", order: 5, track: "express" },
+  { id: "express-error-handling", title: "Error-handling middleware", category: "Middleware & Routing", order: 6, track: "express" },
+  { id: "express-static-body-parsing", title: "Static files & body parsing", category: "Middleware & Routing", order: 7, track: "express" },
+  { id: "express-rest-api-design", title: "RESTful API design", category: "APIs & Data", order: 8, track: "express" },
+  { id: "express-validation", title: "Request validation", category: "APIs & Data", order: 9, track: "express" },
+  { id: "express-sessions-auth", title: "Sessions, cookies & auth basics", category: "Auth & Security", order: 10, track: "express" },
+  { id: "express-security-basics", title: "Security basics (Helmet, CORS)", category: "Auth & Security", order: 11, track: "express" },
+  { id: "express-testing", title: "Testing Express apps", category: "Reliability & Tooling", order: 12, track: "express" },
 ];

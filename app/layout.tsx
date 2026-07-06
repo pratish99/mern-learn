@@ -17,8 +17,8 @@ const codeFont = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Node.js & JavaScript Concept Revision",
-  description: "Revise Node.js and JavaScript concepts through explanations and hands-on coding challenges.",
+  title: "Node.js, JavaScript & Express Concept Revision",
+  description: "Revise Node.js, JavaScript, and Express.js concepts through explanations and hands-on coding challenges.",
 };
 
 const themeInitScript = `

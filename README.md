@@ -1,6 +1,7 @@
-# Node.js Concept Revision
+# Node.js, JavaScript & Express Concept Revision
 
-An interactive app for revising Node.js fundamentals: read a short
+An interactive app for revising Node.js, JavaScript, and Express.js
+fundamentals: read a short
 explanation, look at a couple of code examples, then solve a hands-on
 coding challenge in an in-browser editor with automated tests.
 

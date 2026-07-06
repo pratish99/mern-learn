@@ -29,6 +29,18 @@ import jsIteratorsGenerators from "./modules/js-12-iterators-generators";
 import jsSymbols from "./modules/js-13-symbols";
 import jsRegexBasics from "./modules/js-14-regex-basics";
 import jsProxyReflect from "./modules/js-15-proxy-reflect";
+import expressAppBasics from "./modules/express-01-app-basics";
+import expressRoutingParams from "./modules/express-02-routing-params";
+import expressRequestResponse from "./modules/express-03-request-response";
+import expressMiddlewareBasics from "./modules/express-04-middleware-basics";
+import expressRouterModule from "./modules/express-05-router-module";
+import expressErrorHandling from "./modules/express-06-error-handling";
+import expressStaticBodyParsing from "./modules/express-07-static-body-parsing";
+import expressRestApiDesign from "./modules/express-08-rest-api-design";
+import expressValidation from "./modules/express-09-validation";
+import expressSessionsAuth from "./modules/express-10-sessions-auth";
+import expressSecurityBasics from "./modules/express-11-security-basics";
+import expressTesting from "./modules/express-12-testing";
 
 export const MODULES: ModuleContent[] = [
   runtimeBasics,
@@ -61,6 +73,18 @@ export const MODULES: ModuleContent[] = [
   jsSymbols,
   jsRegexBasics,
   jsProxyReflect,
+  expressAppBasics,
+  expressRoutingParams,
+  expressRequestResponse,
+  expressMiddlewareBasics,
+  expressRouterModule,
+  expressErrorHandling,
+  expressStaticBodyParsing,
+  expressRestApiDesign,
+  expressValidation,
+  expressSessionsAuth,
+  expressSecurityBasics,
+  expressTesting,
 ];
 
 export function getModuleById(id: string): ModuleContent | undefined {
