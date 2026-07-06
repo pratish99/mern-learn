@@ -53,6 +53,18 @@ import reactUseReducer from "./modules/react-09-usereducer";
 import reactCustomHooks from "./modules/react-10-custom-hooks";
 import reactMemoPerformance from "./modules/react-11-memo-performance";
 import reactErrorBoundaries from "./modules/react-12-error-boundaries";
+import mongodbDocumentsCollections from "./modules/mongodb-01-documents-collections";
+import mongodbCrudBasics from "./modules/mongodb-02-crud-basics";
+import mongodbQueryOperators from "./modules/mongodb-03-query-operators";
+import mongodbProjectionsSorting from "./modules/mongodb-04-projections-sorting";
+import mongodbSchemaDesign from "./modules/mongodb-05-schema-design";
+import mongodbRelationships from "./modules/mongodb-06-relationships";
+import mongodbIndexes from "./modules/mongodb-07-indexes";
+import mongodbAggregationPipeline from "./modules/mongodb-08-aggregation-pipeline";
+import mongodbAggregationAdvanced from "./modules/mongodb-09-aggregation-advanced";
+import mongodbMongooseSchemas from "./modules/mongodb-10-mongoose-schemas";
+import mongodbValidationMiddleware from "./modules/mongodb-11-validation-middleware";
+import mongodbTransactions from "./modules/mongodb-12-transactions";
 
 export const MODULES: ModuleContent[] = [
   runtimeBasics,
@@ -109,6 +121,18 @@ export const MODULES: ModuleContent[] = [
   reactCustomHooks,
   reactMemoPerformance,
   reactErrorBoundaries,
+  mongodbDocumentsCollections,
+  mongodbCrudBasics,
+  mongodbQueryOperators,
+  mongodbProjectionsSorting,
+  mongodbSchemaDesign,
+  mongodbRelationships,
+  mongodbIndexes,
+  mongodbAggregationPipeline,
+  mongodbAggregationAdvanced,
+  mongodbMongooseSchemas,
+  mongodbValidationMiddleware,
+  mongodbTransactions,
 ];
 
 export function getModuleById(id: string): ModuleContent | undefined {

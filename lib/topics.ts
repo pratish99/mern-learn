@@ -1,4 +1,4 @@
-export type Track = "node" | "javascript" | "express" | "react";
+export type Track = "node" | "javascript" | "express" | "react" | "mongodb";
 
 export interface Topic {
   id: string;
@@ -13,6 +13,7 @@ export const TRACKS: { id: Track; label: string }[] = [
   { id: "javascript", label: "JavaScript" },
   { id: "express", label: "Express.js" },
   { id: "react", label: "React" },
+  { id: "mongodb", label: "MongoDB" },
 ];
 
 export const CATEGORY_ORDER_BY_TRACK: Record<Track, readonly string[]> = {
@@ -26,6 +27,13 @@ export const CATEGORY_ORDER_BY_TRACK: Record<Track, readonly string[]> = {
   ],
   express: ["Fundamentals", "Middleware & Routing", "APIs & Data", "Auth & Security", "Reliability & Tooling"],
   react: ["Fundamentals", "Hooks & State", "Data Flow & Composition", "Performance & Patterns"],
+  mongodb: [
+    "Fundamentals",
+    "Querying & CRUD",
+    "Schema Design & Modeling",
+    "Aggregation & Indexing",
+    "Mongoose & Production",
+  ],
 };
 
 // Kept for the handful of call sites that don't (yet) need to be track-aware.
@@ -89,4 +97,17 @@ export const TOPICS: Topic[] = [
   { id: "react-custom-hooks", title: "Custom hooks", category: "Performance & Patterns", order: 10, track: "react" },
   { id: "react-memo-performance", title: "React.memo, useMemo & useCallback", category: "Performance & Patterns", order: 11, track: "react" },
   { id: "react-error-boundaries", title: "Error boundaries", category: "Performance & Patterns", order: 12, track: "react" },
+
+  { id: "mongodb-documents-collections", title: "Documents, collections & BSON", category: "Fundamentals", order: 1, track: "mongodb" },
+  { id: "mongodb-crud-basics", title: "CRUD basics: insert, find, update, delete", category: "Fundamentals", order: 2, track: "mongodb" },
+  { id: "mongodb-query-operators", title: "Query operators ($gt, $in, $and, $or)", category: "Querying & CRUD", order: 3, track: "mongodb" },
+  { id: "mongodb-projections-sorting", title: "Projections, sorting & pagination", category: "Querying & CRUD", order: 4, track: "mongodb" },
+  { id: "mongodb-schema-design", title: "Schema design & data modeling", category: "Schema Design & Modeling", order: 5, track: "mongodb" },
+  { id: "mongodb-relationships", title: "Relationships: embedding vs referencing", category: "Schema Design & Modeling", order: 6, track: "mongodb" },
+  { id: "mongodb-indexes", title: "Indexes & query performance", category: "Aggregation & Indexing", order: 7, track: "mongodb" },
+  { id: "mongodb-aggregation-pipeline", title: "Aggregation pipeline: $match, $group, $sort", category: "Aggregation & Indexing", order: 8, track: "mongodb" },
+  { id: "mongodb-aggregation-advanced", title: "Aggregation joins: $lookup & $unwind", category: "Aggregation & Indexing", order: 9, track: "mongodb" },
+  { id: "mongodb-mongoose-schemas", title: "Mongoose schemas & models", category: "Mongoose & Production", order: 10, track: "mongodb" },
+  { id: "mongodb-validation-middleware", title: "Mongoose validation & middleware (hooks)", category: "Mongoose & Production", order: 11, track: "mongodb" },
+  { id: "mongodb-transactions", title: "Transactions & atomic operations", category: "Mongoose & Production", order: 12, track: "mongodb" },
 ];
