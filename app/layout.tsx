@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav";
 import PageTransition from "@/components/PageTransition";
 import VisitTracker from "@/components/VisitTracker";
+import AuthLoader from "@/components/AuthLoader";
 import "./globals.css";
 
 const bodyFont = Inter({
@@ -43,6 +44,7 @@ export default function RootLayout({
     >
       <body className="bg-bg text-text min-h-screen font-sans antialiased">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <AuthLoader />
         <VisitTracker />
         <MobileNav />
         <div className="border-border bg-bg-elevated fixed inset-y-0 left-0 hidden w-64 border-r md:block">

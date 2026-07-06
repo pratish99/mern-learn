@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useProgressStore } from "@/store/progress-store";
 import { useHydrated } from "@/lib/use-hydrated";
 import ThemeToggle from "@/components/ThemeToggle";
+import AccountControl from "@/components/AccountControl";
 
 function ChevronIcon({ open }: { open: boolean }) {
   return (
@@ -198,6 +199,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         >
           Progress
         </Link>
+        <AccountControl onNavigate={onNavigate} />
         <ThemeToggle />
       </div>
     </nav>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { CATEGORY_ORDER_BY_TRACK, TOPICS, TRACKS } from "@/lib/topics";
 import { useProgressStore } from "@/store/progress-store";
+import { useAuthStore } from "@/store/auth-store";
 import { useHydrated } from "@/lib/use-hydrated";
 import ProgressRing from "@/components/ProgressRing";
 
@@ -12,6 +13,7 @@ export default function ProgressPage() {
   const modules = useProgressStore((s) => s.modules);
   const streak = useProgressStore((s) => s.streak);
   const resetProgress = useProgressStore((s) => s.resetProgress);
+  const authStatus = useAuthStore((s) => s.status);
   const [confirmingReset, setConfirmingReset] = useState(false);
 
   const entries = hydrated ? Object.values(modules) : [];
@@ -23,7 +25,9 @@ export default function ProgressPage() {
     <div className="mx-auto max-w-3xl px-6 py-12 md:px-10">
       <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">Your progress</h1>
       <p className="text-text-muted mt-2 text-sm">
-        Tracked locally in your browser — nothing leaves your machine.
+        {authStatus === "authenticated"
+          ? "Synced to your account."
+          : "Tracked locally in your browser — nothing leaves your machine."}
       </p>
 
       <div className="border-border bg-surface mt-8 flex flex-col items-center gap-6 rounded-lg border px-6 py-8 sm:flex-row sm:justify-around">
