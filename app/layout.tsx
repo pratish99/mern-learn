@@ -5,6 +5,7 @@ import MobileNav from "@/components/MobileNav";
 import PageTransition from "@/components/PageTransition";
 import VisitTracker from "@/components/VisitTracker";
 import AuthLoader from "@/components/AuthLoader";
+import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
 const bodyFont = Inter({
@@ -46,6 +47,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <AuthLoader />
         <VisitTracker />
+        <ThemeToggle />
         <MobileNav />
         <div className="border-border bg-bg-elevated fixed inset-y-0 left-0 hidden w-64 border-r md:block">
           <Sidebar />

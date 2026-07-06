@@ -7,8 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CATEGORY_ORDER_BY_TRACK, TOPICS, TRACKS } from "@/lib/topics";
 import { cn } from "@/lib/utils";
 import { useProgressStore } from "@/store/progress-store";
+import { useAuthStore } from "@/store/auth-store";
 import { useHydrated } from "@/lib/use-hydrated";
-import ThemeToggle from "@/components/ThemeToggle";
 import AccountControl from "@/components/AccountControl";
 
 function ChevronIcon({ open }: { open: boolean }) {
@@ -51,6 +51,8 @@ function CheckDot() {
 export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const hydrated = useHydrated();
+  const authStatus = useAuthStore((s) => s.status);
+  const isAuthed = hydrated && authStatus === "authenticated";
   const modules = useProgressStore((s) => s.modules);
   const activeTrack = useProgressStore((s) => s.activeTrack);
   const setActiveTrack = useProgressStore((s) => s.setActiveTrack);
@@ -72,14 +74,39 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         <span className="font-semibold tracking-tight">Dev Revision</span>
       </Link>
 
-      <div className="bg-surface flex gap-1 rounded-md p-1">
+      {isAuthed ? (
+        <Link
+          href="/progress"
+          onClick={onNavigate}
+          className={cn(
+            "relative rounded-md px-2 py-1.5 text-sm transition-colors",
+            pathname === "/progress"
+              ? "bg-accent-soft text-accent font-medium"
+              : "text-text-muted hover:bg-surface-hover hover:text-text"
+          )}
+        >
+          Progress
+        </Link>
+      ) : (
+        hydrated && (
+          <Link
+            href="/login"
+            onClick={onNavigate}
+            className="border-border hover:border-border-strong hover:bg-surface-hover rounded-md border px-2 py-1.5 text-center text-sm text-text-muted transition-colors"
+          >
+            Keep track of your progress?
+          </Link>
+        )
+      )}
+
+      <div className="bg-surface flex flex-wrap gap-1 rounded-md p-1">
         {TRACKS.map((t) => (
           <button
             key={t.id}
             onClick={() => setActiveTrack(t.id)}
             aria-current={track === t.id}
             className={cn(
-              "flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+              "grow basis-[30%] rounded-md px-2 py-1.5 text-center text-xs font-medium transition-colors",
               track === t.id
                 ? "bg-accent-soft text-accent"
                 : "text-text-muted hover:text-text"
@@ -187,20 +214,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <div className="mt-auto flex flex-col gap-1 border-t pt-4">
-        <Link
-          href="/progress"
-          onClick={onNavigate}
-          className={cn(
-            "relative rounded-md px-2 py-1.5 text-sm transition-colors",
-            pathname === "/progress"
-              ? "bg-accent-soft text-accent font-medium"
-              : "text-text-muted hover:bg-surface-hover hover:text-text"
-          )}
-        >
-          Progress
-        </Link>
         <AccountControl onNavigate={onNavigate} />
-        <ThemeToggle />
       </div>
     </nav>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { cn } from "@/lib/utils";
 
 type Theme = "dark" | "light";
 
@@ -56,12 +57,43 @@ export default function ThemeToggle() {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   return (
-    <button
-      onClick={() => applyTheme(theme === "light" ? "dark" : "light")}
-      className="text-text-muted hover:bg-surface-hover hover:text-text flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors"
+    <div
+      role="radiogroup"
+      aria-label="Theme"
+      className="border-border-strong bg-surface fixed top-4 right-4 z-50 flex items-center gap-0.5 rounded-full border p-1 shadow-lg"
     >
-      {theme === "light" ? <MoonIcon /> : <SunIcon />}
-      {theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-    </button>
+      <button
+        type="button"
+        role="radio"
+        aria-checked={theme === "light"}
+        aria-label="Light mode"
+        title="Light mode"
+        onClick={() => applyTheme("light")}
+        className={cn(
+          "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
+          theme === "light"
+            ? "bg-accent text-bg"
+            : "text-text-muted hover:text-text hover:bg-surface-hover"
+        )}
+      >
+        <SunIcon />
+      </button>
+      <button
+        type="button"
+        role="radio"
+        aria-checked={theme === "dark"}
+        aria-label="Dark mode"
+        title="Dark mode"
+        onClick={() => applyTheme("dark")}
+        className={cn(
+          "flex h-7 w-7 items-center justify-center rounded-full transition-colors",
+          theme === "dark"
+            ? "bg-accent text-bg"
+            : "text-text-muted hover:text-text hover:bg-surface-hover"
+        )}
+      >
+        <MoonIcon />
+      </button>
+    </div>
   );
 }
