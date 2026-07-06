@@ -6,45 +6,118 @@ const securityBasics: ModuleContent = {
   category: "Reliability & Tooling",
   order: 14,
   explanation: `
-### Never build code from strings
+Think of your server as a very obedient assistant. Normally it only
+follows instructions **you** wrote in your code. Almost every security
+bug in this module comes from the same root mistake: letting data that
+came from a stranger (a form field, a URL, an uploaded file) get treated
+as if it were an instruction *you* wrote. Once that happens, the
+attacker is effectively typing commands directly into your app. The
+sections below cover the most common ways that happens, and the simple
+habits that prevent it.
 
-\`eval()\`, \`new Function(str)\`, and \`child_process.exec\` with
-unsanitized input all execute arbitrary code. If user input reaches any
-of them, that's remote code execution. Use \`JSON.parse\` (not \`eval\`) for
-JSON, and \`execFile\`/\`spawn\` with an argument **array** (not a shell
-string) so arguments can't be interpreted as shell syntax.
+### Never let user input turn into code
+
+Some JavaScript and Node functions take a **string** and run it as code
+or as a shell command:
+
+- \`eval(str)\` — runs \`str\` as JavaScript.
+- \`new Function(str)\` — builds a function out of \`str\` and runs it.
+- \`child_process.exec(str)\` — runs \`str\` as a command in a real shell
+  (the same program your terminal uses), so shell characters like
+  \`;\`, \`|\`, and \`$()\` are interpreted, not just passed along.
+
+If any part of \`str\` came from a user, they can smuggle in extra
+commands. This is called **RCE (remote code execution)** — the attacker
+gets to run arbitrary code on your server, not just mess with your app's
+data.
 
 \`\`\`js
-// vulnerable — user input becomes part of a shell command
+// vulnerable — userFilename could be "a.png; rm -rf /"
+// exec() hands the whole string to a shell, which happily runs both parts
 exec(\`convert \${userFilename} out.png\`);
 
-// safe — arguments are passed directly, not through a shell
+// safe — execFile passes each argument directly to the "convert" program,
+// with no shell in between to reinterpret special characters
 execFile("convert", [userFilename, "out.png"]);
 \`\`\`
 
-### Output encoding beats input blocklisting
+The fix is always the same shape: don't build a string and hand it to
+something that "executes" strings. Use \`JSON.parse\` instead of \`eval\`
+to read JSON, and use \`execFile\`/\`spawn\` with an **array** of
+arguments instead of one big command string.
 
-Trying to "sanitize" input by stripping dangerous characters is fragile —
-you'll miss an encoding. Instead, **encode on output** for the context
-you're writing into: escape HTML entities before interpolating into a
-page, use parameterized queries for SQL (never string-concatenate values
-into a query), and quote/array-ify shell arguments.
+### Encode when you output, don't just filter on input
 
-### Prototype pollution
+A common first instinct is to "clean" user input by stripping out
+characters that look dangerous (like \`<\` or \`'\`). This is called
+**blocklisting**, and it's fragile — there is almost always some
+encoding or trick you didn't think to block.
 
-Merging untrusted JSON into an object without guarding against
-\`"__proto__"\`/\`"constructor"\` keys can let an attacker modify
-\`Object.prototype\` itself, affecting every object in the process.
-Use \`Object.create(null)\` for dictionaries built from untrusted keys, or
-a library that explicitly guards against this (or \`structuredClone\`,
-which doesn't walk the prototype chain).
+A more reliable approach is **output encoding**: instead of trying to
+guess what's dangerous going in, you make the data safe right before it
+lands in a sensitive spot, in a way that matches that spot.
 
-### Safe dependencies
+- Writing into an HTML page? Escape HTML entities (turn \`<\` into
+  \`&lt;\`, etc.) so a comment like \`<script>\` renders as visible text
+  instead of running as a tag. Skipping this is how **XSS
+  (cross-site scripting)** happens — an attacker's script runs in
+  another user's browser.
+- Writing into a SQL query? Use **parameterized queries**, where the
+  value is sent to the database separately from the query text, instead
+  of pasting the value into the query string. Skipping this is how
+  **SQL injection** happens — an attacker's text is interpreted as part
+  of your query.
+- Writing into a shell command? Pass arguments as an array (see above)
+  instead of one string.
 
-- Commit \`package-lock.json\` for reproducible installs.
-- Run \`npm audit\` and update flagged packages.
-- Be wary of install scripts (\`postinstall\`) from packages you don't
-  trust — they run arbitrary code at install time.
+The pattern is the same each time: keep the data and the "instructions"
+(HTML tags, SQL syntax, shell syntax) clearly separated, right up until
+the last safe moment.
+
+### Prototype pollution: poisoning the shared blueprint
+
+Every plain JavaScript object secretly has a link to a shared "blueprint"
+object called \`Object.prototype\` — it's where methods like
+\`.toString()\` live so you don't have to redefine them on every object.
+This chain of "if I don't have this property, check my blueprint" is
+called the **prototype chain**.
+
+If your code merges untrusted JSON into an object without checking the
+keys, an attacker can send a key named \`"__proto__"\` or
+\`"constructor"\`. A naive merge will follow that key straight to the
+shared blueprint and modify it — meaning *every other object in your
+running app*, not just this one, now has that attacker-controlled
+property. That's **prototype pollution**, and it can quietly break
+validation logic or permission checks elsewhere in the app.
+
+Defenses: build dictionaries of untrusted keys with
+\`Object.create(null)\` (an object with no blueprint link to poison), use
+a merge library that explicitly guards against \`__proto__\`/
+\`constructor\` keys, or use \`structuredClone\` for copying data, since it
+doesn't walk the prototype chain at all.
+
+### Keep your dependencies honest
+
+Most apps run mostly other people's code (npm packages). A few habits
+keep that from becoming a liability:
+
+- Commit \`package-lock.json\` so every install (yours, a teammate's, the
+  deploy server's) resolves to the exact same versions — no surprises.
+- Run \`npm audit\` regularly and update packages it flags as having
+  known vulnerabilities.
+- Be cautious about install scripts (like \`postinstall\`) in packages
+  you don't fully trust — they run arbitrary code on your machine the
+  moment you run \`npm install\`, before you've even used the package.
+
+### Why this matters
+
+Almost every real-world security bug you'll fix boils down to one
+question: "where does this data cross from 'stranger input' into
+'something that gets executed, rendered, or trusted'?" The
+\`escapeHtml\` function you'll write in this module's challenge is a
+small, concrete example of output encoding — the same instinct that
+protects you from SQL injection, shell injection, and prototype
+pollution.
 `.trim(),
   codeExamples: [
     {

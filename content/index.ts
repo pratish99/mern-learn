@@ -14,6 +14,21 @@ import processEnv from "./modules/12-process-env";
 import debuggingPerformance from "./modules/13-debugging-performance";
 import securityBasics from "./modules/14-security-basics";
 import testingBasics from "./modules/15-testing-basics";
+import jsScopeHoisting from "./modules/js-01-scope-hoisting";
+import jsTypesCoercion from "./modules/js-02-types-coercion";
+import jsEqualityImmutability from "./modules/js-03-equality-immutability";
+import jsFunctions from "./modules/js-04-functions";
+import jsClosures from "./modules/js-05-closures";
+import jsThisBinding from "./modules/js-06-this-binding";
+import jsObjectDescriptors from "./modules/js-07-object-descriptors";
+import jsPrototypes from "./modules/js-08-prototypes";
+import jsClasses from "./modules/js-09-classes";
+import jsDestructuringSpread from "./modules/js-10-destructuring-spread";
+import jsArrayIteration from "./modules/js-11-array-iteration";
+import jsIteratorsGenerators from "./modules/js-12-iterators-generators";
+import jsSymbols from "./modules/js-13-symbols";
+import jsRegexBasics from "./modules/js-14-regex-basics";
+import jsProxyReflect from "./modules/js-15-proxy-reflect";
 
 export const MODULES: ModuleContent[] = [
   runtimeBasics,
@@ -31,7 +46,22 @@ export const MODULES: ModuleContent[] = [
   debuggingPerformance,
   securityBasics,
   testingBasics,
-].sort((a, b) => a.order - b.order);
+  jsScopeHoisting,
+  jsTypesCoercion,
+  jsEqualityImmutability,
+  jsFunctions,
+  jsClosures,
+  jsThisBinding,
+  jsObjectDescriptors,
+  jsPrototypes,
+  jsClasses,
+  jsDestructuringSpread,
+  jsArrayIteration,
+  jsIteratorsGenerators,
+  jsSymbols,
+  jsRegexBasics,
+  jsProxyReflect,
+];
 
 export function getModuleById(id: string): ModuleContent | undefined {
   return MODULES.find((m) => m.id === id);

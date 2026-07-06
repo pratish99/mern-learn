@@ -34,7 +34,7 @@ export default function MobileNav() {
           </svg>
         </button>
         <span className="text-accent font-mono text-base font-semibold">{"</>"}</span>
-        <span className="font-semibold tracking-tight">Node Revision</span>
+        <span className="font-semibold tracking-tight">Dev Revision</span>
       </header>
 
       <AnimatePresence>

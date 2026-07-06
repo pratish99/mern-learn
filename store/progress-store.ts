@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { Track } from "@/lib/topics";
 
 export interface ModuleProgress {
   viewed: boolean;
@@ -15,11 +16,13 @@ interface StreakState {
 interface ProgressState {
   modules: Record<string, ModuleProgress>;
   streak: StreakState;
+  activeTrack: Track;
   markViewed: (moduleId: string) => void;
   markAttempted: (moduleId: string) => void;
   markCompleted: (moduleId: string) => void;
   recordVisit: () => void;
   resetProgress: () => void;
+  setActiveTrack: (track: Track) => void;
 }
 
 function todayKey(): string {
@@ -40,6 +43,7 @@ export const useProgressStore = create<ProgressState>()(
     (set, get) => ({
       modules: {},
       streak: { count: 0, lastVisitDate: null },
+      activeTrack: "node",
 
       markViewed: (moduleId) =>
         set((state) =>
@@ -73,6 +77,8 @@ export const useProgressStore = create<ProgressState>()(
       },
 
       resetProgress: () => set({ modules: {}, streak: { count: 0, lastVisitDate: null } }),
+
+      setActiveTrack: (track) => set({ activeTrack: track }),
     }),
     { name: "node-revision-progress" }
   )

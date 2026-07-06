@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { CATEGORY_ORDER, TOPICS } from "@/lib/topics";
+import { CATEGORY_ORDER_BY_TRACK, TOPICS, TRACKS } from "@/lib/topics";
 import { cn } from "@/lib/utils";
 import { useProgressStore } from "@/store/progress-store";
 import { useHydrated } from "@/lib/use-hydrated";
@@ -51,24 +51,48 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const hydrated = useHydrated();
   const modules = useProgressStore((s) => s.modules);
+  const activeTrack = useProgressStore((s) => s.activeTrack);
+  const setActiveTrack = useProgressStore((s) => s.setActiveTrack);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
+  const track = hydrated ? activeTrack : "node";
+  const trackTopics = TOPICS.filter((t) => t.track === track);
+  const categoryOrder = CATEGORY_ORDER_BY_TRACK[track];
+
   const completedCount = hydrated
-    ? Object.values(modules).filter((m) => m.completed).length
+    ? trackTopics.filter((t) => modules[t.id]?.completed).length
     : 0;
-  const overallPct = Math.round((completedCount / TOPICS.length) * 100);
+  const overallPct = Math.round((completedCount / trackTopics.length) * 100);
 
   return (
     <nav aria-label="Module navigation" className="flex h-full flex-col gap-6 overflow-y-auto px-4 py-6">
       <Link href="/" onClick={onNavigate} className="flex items-center gap-2 px-2">
         <span className="text-accent font-mono text-lg font-semibold">{"</>"}</span>
-        <span className="font-semibold tracking-tight">Node Revision</span>
+        <span className="font-semibold tracking-tight">Dev Revision</span>
       </Link>
+
+      <div className="bg-surface flex gap-1 rounded-md p-1">
+        {TRACKS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTrack(t.id)}
+            aria-current={track === t.id}
+            className={cn(
+              "flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+              track === t.id
+                ? "bg-accent-soft text-accent"
+                : "text-text-muted hover:text-text"
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
       <div className="px-2">
         <div className="text-text-faint mb-1.5 flex items-center justify-between text-xs">
           <span>Overall progress</span>
-          <span className="font-mono">{completedCount}/{TOPICS.length}</span>
+          <span className="font-mono">{completedCount}/{trackTopics.length}</span>
         </div>
         <div className="bg-border h-1.5 w-full overflow-hidden rounded-full">
           <motion.div
@@ -81,8 +105,8 @@ export default function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <div className="flex flex-col gap-1">
-        {CATEGORY_ORDER.map((category) => {
-          const topics = TOPICS.filter((t) => t.category === category).sort(
+        {categoryOrder.map((category) => {
+          const topics = trackTopics.filter((t) => t.category === category).sort(
             (a, b) => a.order - b.order
           );
           if (topics.length === 0) return null;

@@ -6,40 +6,96 @@ const runtimeBasics: ModuleContent = {
   category: "Fundamentals",
   order: 1,
   explanation: `
-Node.js is not a language feature — it's a **runtime**: V8 (Chrome's JS
-engine) plus **libuv** (a C library providing the event loop, thread pool,
-and async I/O). V8 compiles and executes your JavaScript; libuv handles
-everything that talks to the OS (files, sockets, timers, DNS).
+### The problem: JavaScript alone can't touch your hard drive
 
-### Single-threaded, but not single-tasking
+Imagine JavaScript as a chef who is brilliant at following recipes but
+has no arms — it can *decide* what to do, but it can't actually open a
+file, talk to a network, or set a timer by itself. Something else has to
+do the physical work. That "something else" is **Node.js**.
 
-Your JS callbacks all run on **one thread** — the event loop. There's no
-implicit parallelism between callbacks; only one runs at a time, to
-completion, before the next one starts ("run-to-completion").
+Node isn't a new programming language. It's a **runtime** — a program
+that takes your JavaScript and gives it hands. Under the hood, Node is
+really two pieces glued together:
 
-Async I/O doesn't block that thread. libuv delegates blocking work (disk
-reads, some DNS lookups, crypto) to a small **thread pool** (default size
-4) behind the scenes, and queues a callback on the event loop once it's
-done. Network I/O typically uses the OS's async primitives (epoll/kqueue/
-IOCP) directly, without needing the thread pool at all.
+- **V8** — the same JS engine Chrome uses. It reads your JavaScript and
+  runs it.
+- **libuv** — a C library that knows how to talk to the operating system:
+  reading files, opening network sockets, running timers, looking things
+  up over DNS.
 
-### Why this matters
+So when your code calls \`fs.readFile(...)\`, V8 isn't the one reading the
+file — it hands that job to libuv, which asks the OS to do it.
 
-Because JS execution is single-threaded, a long synchronous computation
-**blocks everything** — timers, incoming requests, I/O callbacks — until it
-finishes. There's no time-slicing between two synchronous functions the
-way there is between OS threads.
+### One thread, one task at a time
+
+Here's the part beginners trip over: **all of your JavaScript runs on a
+single thread**, called the **event loop**. A "thread" is just a single
+line of execution — one thing happening at a time, in order. There is
+only one of these for your JS code, no matter how many things your app
+seems to be doing "at once."
+
+This means:
+
+- Only one piece of your JS code runs at any given instant.
+- Once a function starts running, it runs **to completion** before the
+  next thing gets a turn — nobody can interrupt it partway through.
+
+That sounds limiting, but Node is still great at handling thousands of
+things "at once" (think: a web server with many visitors). It manages
+this trick by keeping the *waiting* off the JS thread, not the running.
+
+### Async work happens somewhere else, then reports back
+
+When you ask Node to do something slow — read a file, query a database,
+wait for a timer — it doesn't make your JS thread sit there twiddling its
+thumbs. Instead:
+
+1. Node hands the slow task to libuv.
+2. libuv either asks the OS to watch for it (common for network requests)
+   or runs it on a small background **thread pool** (a handful of extra
+   threads, 4 by default, used for things like file reads or some
+   encryption work).
+3. Your JS thread is immediately free to keep running other code.
+4. When the slow task finishes, libuv places your callback function into
+   a queue, and the event loop picks it up and runs it — on that same
+   single JS thread, in its turn.
+
+So "asynchronous" doesn't mean "runs at the same time as your other
+code." It means "runs *later*, once the slow part is done, without
+making everything else wait for it."
+
+### Why a single thread can still be a trap
+
+Because there is only one thread for your JS, a function that takes a
+long time to *compute* (not just to wait) will freeze everything else —
+timers won't fire, other requests won't be handled, nothing moves —
+until that function returns.
 
 \`\`\`js
 console.log("start");
-for (let i = 0; i < 1e9; i++) {} // blocks the event loop
-console.log("done"); // nothing else can run until this line
+
+// This is a synchronous, CPU-bound loop — libuv can't help here,
+// because there's no I/O to hand off. V8 just has to grind through it.
+for (let i = 0; i < 1e9; i++) {}
+
+console.log("done"); // literally nothing else can run until this fires
 \`\`\`
 
-This is the core trade-off of Node: excellent for I/O-bound workloads
-(many concurrent connections, mostly waiting on network/disk), poor for
-CPU-bound work on the main thread (use worker threads or child processes
-for that — covered later).
+Contrast that with waiting on a file or a network call: that's I/O
+(input/output), and Node can delegate the *waiting* part, so your thread
+stays free.
+
+### Why this matters
+
+Node's whole personality follows from this design: it's excellent at
+juggling many slow, I/O-heavy tasks (serving lots of web requests that
+are mostly waiting on a database or network), and bad at doing heavy
+number-crunching directly on the main thread, because that blocks
+everyone else. When you genuinely need heavy computation, you reach for
+worker threads or separate processes instead (covered in a later
+module) — but for everyday app code, the lesson is simpler: keep your
+synchronous code short, and let async APIs (callbacks, promises,
+async/await) do the waiting for you.
 `.trim(),
   codeExamples: [
     {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CATEGORY_ORDER, TOPICS } from "@/lib/topics";
+import { CATEGORY_ORDER_BY_TRACK, TOPICS, TRACKS } from "@/lib/topics";
 import { useProgressStore } from "@/store/progress-store";
 import { useHydrated } from "@/lib/use-hydrated";
 import ProgressRing from "@/components/ProgressRing";
@@ -47,34 +47,38 @@ export default function ProgressPage() {
         </div>
       </div>
 
-      <div className="mt-10 flex flex-col gap-5">
-        <h2 className="text-text-faint text-xs font-semibold tracking-wider uppercase">
-          By category
-        </h2>
-        {CATEGORY_ORDER.map((category) => {
-          const topics = TOPICS.filter((t) => t.category === category);
-          const done = hydrated ? topics.filter((t) => modules[t.id]?.completed).length : 0;
-          const pct = topics.length > 0 ? Math.round((done / topics.length) * 100) : 0;
+      <div className="mt-10 flex flex-col gap-8">
+        {TRACKS.map((track) => (
+          <div key={track.id} className="flex flex-col gap-5">
+            <h2 className="text-text-faint text-xs font-semibold tracking-wider uppercase">
+              {track.label}
+            </h2>
+            {CATEGORY_ORDER_BY_TRACK[track.id].map((category) => {
+              const topics = TOPICS.filter((t) => t.track === track.id && t.category === category);
+              const done = hydrated ? topics.filter((t) => modules[t.id]?.completed).length : 0;
+              const pct = topics.length > 0 ? Math.round((done / topics.length) * 100) : 0;
 
-          return (
-            <div key={category}>
-              <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="text-text font-medium">{category}</span>
-                <span className="text-text-faint font-mono text-xs">
-                  {done}/{topics.length}
-                </span>
-              </div>
-              <div className="bg-border h-2 w-full overflow-hidden rounded-full">
-                <motion.div
-                  className="bg-accent h-full rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${pct}%` }}
-                  transition={{ type: "spring", stiffness: 120, damping: 22 }}
-                />
-              </div>
-            </div>
-          );
-        })}
+              return (
+                <div key={category}>
+                  <div className="mb-1.5 flex items-center justify-between text-sm">
+                    <span className="text-text font-medium">{category}</span>
+                    <span className="text-text-faint font-mono text-xs">
+                      {done}/{topics.length}
+                    </span>
+                  </div>
+                  <div className="bg-border h-2 w-full overflow-hidden rounded-full">
+                    <motion.div
+                      className="bg-accent h-full rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ type: "spring", stiffness: 120, damping: 22 }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       <div className="border-border mt-12 flex items-center justify-between border-t pt-6">

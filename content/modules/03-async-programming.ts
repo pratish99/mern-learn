@@ -6,63 +6,114 @@ const asyncProgramming: ModuleContent = {
   category: "Async & Concurrency",
   order: 3,
   explanation: `
-Node's async story evolved in three stages, and you'll still see all
-three in real codebases.
+Imagine you order food at a counter. You don't stand there frozen,
+staring into the kitchen until your order is ready — you take a
+number, go sit down, and the staff calls you when it's done. That's
+what "async" (asynchronous) code lets Node do: start a slow task (like
+reading a file or calling a database) and keep doing other work while
+it finishes, instead of freezing everything until it's done.
 
-### 1. Error-first callbacks
+Node has had three different ways to write "do this, then handle the
+result later" code. They all solve the same problem, but each one
+fixes a pain point in the one before it. You'll see all three in real
+codebases, so it's worth recognizing each style even if you mostly
+write the newest one.
 
-The original pattern: the last argument is a callback shaped
-\`(err, result) => {}\`. Always check \`err\` first.
+### 1. Error-first callbacks (the original way)
+
+A **callback** is just a function you hand to another function, to be
+called later when the work is done. Node's oldest convention is the
+**error-first callback**: the callback is always the last argument,
+and it's always shaped \`(err, result) => {}\`. The rule is simple —
+check \`err\` first, every time.
 
 \`\`\`js
 fs.readFile("a.txt", "utf8", (err, data) => {
-  if (err) return handle(err);
-  use(data);
+  if (err) return handle(err); // something went wrong — bail out
+  use(data); // no error, so "data" is safe to use
 });
 \`\`\`
 
-Downsides: nesting ("callback hell"), no built-in way to compose, easy to
-forget error handling or call the callback twice.
+Why this eventually became annoying: if you need to do several async
+steps in a row (read a file, then use its contents to fetch something,
+then save the result), each step nests inside the callback of the
+previous one. Code drifts to the right and gets hard to follow —
+developers call this "callback hell." There's also no built-in way to
+say "wait for these five things at once," and it's easy to accidentally
+forget to check \`err\` or call the callback twice.
 
-### 2. Promises
+### 2. Promises (a receipt for a future value)
 
-A Promise represents a value that will exist (or fail) later. It has
-three states: pending → fulfilled or rejected, and once settled it never
-changes again.
+A **Promise** is an object that represents a value you don't have
+yet, but will get eventually — like a receipt for food that's still
+being cooked. A Promise is always in one of three states:
+
+- **pending** — still waiting
+- **fulfilled** — finished successfully, holding a result
+- **rejected** — finished with an error
+
+Once a Promise settles (fulfills or rejects), it stays that way
+forever — it can't change state again. You attach \`.then()\` to
+handle success and \`.catch()\` to handle failure:
 
 \`\`\`js
 readFilePromise("a.txt")
-  .then((data) => use(data))
-  .catch((err) => handle(err));
+  .then((data) => use(data)) // runs if the promise is fulfilled
+  .catch((err) => handle(err)); // runs if the promise is rejected
 \`\`\`
 
-\`util.promisify(fn)\` converts a conventional error-first callback
-function into one that returns a Promise, as long as the function follows
-the \`(...args, cb)\` shape.
+This reads better than nested callbacks and lets you chain steps
+without drifting rightward. Node even gives you a helper for
+converting old-style functions: \`util.promisify(fn)\` takes a
+conventional error-first callback function and returns a new version
+of it that returns a Promise instead — as long as the original
+function follows the \`(...args, cb)\` shape (normal arguments first,
+callback last).
 
-### 3. async/await
+### 3. async/await (making it read like normal code)
 
-Syntactic sugar over Promises — an \`async function\` always returns a
-Promise, and \`await\` pauses that function (not the whole thread) until
-the awaited Promise settles, unwrapping the value or throwing the
-rejection as a catchable error.
+\`async\`/\`await\` isn't a new mechanism — it's friendlier syntax
+built directly on top of Promises. Two rules to remember:
+
+- Any function marked \`async\` automatically returns a Promise.
+- Inside an \`async function\`, the \`await\` keyword pauses *that
+  function* until the Promise it's waiting on settles. If it
+  fulfills, \`await\` hands you the unwrapped value. If it rejects,
+  \`await\` throws that error, so you can catch it with a normal
+  \`try/catch\` — no \`.then\`/\`.catch\` chains needed.
 
 \`\`\`js
 async function main() {
   try {
-    const data = await readFilePromise("a.txt");
+    const data = await readFilePromise("a.txt"); // pauses here until settled
     use(data);
   } catch (err) {
-    handle(err);
+    handle(err); // catches a rejection, just like a thrown error
   }
 }
 \`\`\`
 
-\`await\` only pauses the enclosing async function — everything else on
-the event loop keeps running. Unhandled Promise rejections don't crash
-older Node versions silently, but modern Node terminates the process on
-an unhandled rejection by default, so always attach a \`.catch\` or wrap
-awaits in \`try/catch\`.
+Important nuance: \`await\` only pauses the \`async\` function it's
+written in — it does **not** freeze the rest of your program. Node's
+event loop keeps handling other requests, timers, and callbacks while
+that one function is paused.
+
+One safety note: if a Promise rejects and nothing ever handles that
+rejection (no \`.catch\`, no \`try/catch\` around the \`await\`), modern
+Node treats it as a serious bug and crashes the process. Older Node
+versions used to fail silently instead. Either way, the lesson is the
+same: always give every awaited Promise a \`try/catch\`, or every
+\`.then()\` chain a \`.catch()\`.
+
+### Why this matters
+
+You'll meet all three styles in real code — older libraries still use
+error-first callbacks, some APIs return Promises directly, and most
+new code you write will use \`async\`/\`await\`. Recognizing the
+pattern tells you immediately how to handle errors and how to wait for
+the result correctly, which is exactly what the coding challenge below
+asks you to do: wrap an error-first callback function so it returns a
+Promise you can \`await\`.
 `.trim(),
   codeExamples: [
     {

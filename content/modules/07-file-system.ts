@@ -19,43 +19,92 @@ const fileSystem: ModuleContent = {
   category: "I/O & Networking",
   order: 7,
   explanation: `
-Node's \`fs\` module has three flavors of every operation:
+Imagine you keep a notebook on your desk. To read what's in it, you have to
+physically open it, wait for your eyes to scan the page, and only then can
+you use the information. Reading a file from disk works the same way:
+Node has to go ask the operating system to fetch the data, and that takes
+real time — much longer than, say, adding two numbers in memory. The \`fs\`
+module ("file system") is Node's toolkit for that: reading files, writing
+files, making folders, and so on.
 
-- **Sync** — \`fs.readFileSync()\` — blocks the event loop until done.
-- **Callback** — \`fs.readFile(path, cb)\` — the original async API.
-- **Promise** — \`fs.promises.readFile(path)\` (or \`require("fs/promises")\`)
-  — the modern way, pairs naturally with \`async\`/\`await\`.
+### Why there are three ways to do the same thing
 
-Prefer \`fs/promises\` in new code — it composes with \`try/catch\` instead of
-manually checking an \`err\` parameter on every call.
+Because reading a file takes time, Node has to decide: should the rest of
+your program wait, or should it keep running and get notified later? Over
+the years Node grew three different answers to that question, and you'll
+still see all three in real code:
+
+- **Sync** — \`fs.readFileSync()\`. This one makes your whole program stop
+  and wait until the file is fully read. Simple to reason about, but if
+  this runs on a web server, *every other request freezes too* while it
+  waits. Fine for quick scripts, risky in a running app.
+- **Callback** — \`fs.readFile(path, cb)\`. This is the original
+  "don't wait" approach: you hand Node a function (the callback) to run
+  once the file is ready, and your program keeps going in the meantime.
+  It works, but nesting many of these gets messy fast (sometimes called
+  "callback hell").
+- **Promise** — \`fs.promises.readFile(path)\`, usually imported as
+  \`require("fs/promises")\`. This is the modern, easiest-to-read version.
+  A **promise** is just an object that represents "a value that will show
+  up later, or an error if something went wrong." Promises pair naturally
+  with the \`async\`/\`await\` keywords, so your asynchronous file-reading
+  code can look almost as clean as normal step-by-step code.
+
+For new code, reach for \`fs/promises\`. The big win: errors show up in a
+plain \`try/catch\` block, instead of you having to remember to check an
+\`err\` argument by hand on every single call.
 
 \`\`\`js
 const fs = require("fs/promises");
 
 async function loadConfig(path) {
   try {
-    const raw = await fs.readFile(path, "utf8");
+    const raw = await fs.readFile(path, "utf8"); // "utf8" = read it as text, not raw bytes
     return JSON.parse(raw);
   } catch (err) {
-    if (err.code === "ENOENT") return {}; // missing file → defaults
-    throw err; // anything else is a real problem — don't swallow it
+    if (err.code === "ENOENT") return {}; // missing file → just use defaults
+    throw err; // anything else is a real problem — don't hide it
   }
 }
 \`\`\`
 
-### Errors carry a \`code\`
+Read that step by step: \`await\` pauses *this function* (not your whole
+program) until \`readFile\` finishes, then hands you the file's contents as
+a string. If anything goes wrong — the file doesn't exist, you don't have
+permission, etc. — control jumps straight to the \`catch\` block instead of
+crashing your app.
 
-Node's \`fs\` errors are regular \`Error\` objects with a \`.code\` property —
-\`"ENOENT"\` (not found), \`"EACCES"\` (permission denied), \`"EEXIST"\`
-(already exists), etc. Branch on \`.code\`, not on parsing the message
-string.
+### Errors carry a \`code\`, so check that instead of guessing from text
 
-### Streams vs. whole-file reads
+When something goes wrong, Node doesn't just say "error" — it gives you a
+regular \`Error\` object with an extra \`.code\` property that tells you
+exactly what happened:
 
-\`readFile\` loads the entire file into memory — fine for small config
-files, wasteful (or impossible) for multi-gigabyte files. For those, use
-\`fs.createReadStream()\` (see the Streams module) so you process data
-incrementally instead.
+- \`"ENOENT"\` — the file or folder doesn't exist ("Error, No ENTry").
+- \`"EACCES"\` — you don't have permission to access it.
+- \`"EEXIST"\` — you tried to create something that's already there.
+
+Always branch on \`err.code\`, never on trying to match pieces of the error
+message text — the message is meant for humans to read, the code is meant
+for your program to check.
+
+### Reading a whole file vs. reading it in pieces
+
+\`fs.readFile\` is convenient because it hands you the *entire* file's
+contents in one go — great for a small config file that's a few kilobytes.
+But what if the file is 10 gigabytes? Loading all of that into memory at
+once could crash your program, or at least make it painfully slow.
+
+For big files, Node offers \`fs.createReadStream()\`, which reads the file
+in small chunks and lets you process each chunk as it arrives — like
+reading a book one page at a time instead of trying to memorize it all
+before you turn the first page. (The Streams module covers this in
+detail.)
+
+**Why this matters:** almost every real app needs to load a config file,
+write a log, or save some user data to disk — and \`fs/promises\` combined
+with \`try/catch\` and \`err.code\` checks is the pattern you'll reach for
+every time you do.
 `.trim(),
   codeExamples: [
     {

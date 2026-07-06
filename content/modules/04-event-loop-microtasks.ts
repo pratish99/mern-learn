@@ -6,44 +6,99 @@ const eventLoopMicrotasks: ModuleContent = {
   category: "Async & Concurrency",
   order: 4,
   explanation: `
-Node's event loop runs in **phases**, each with its own FIFO queue of
-callbacks. A simplified pass through the loop looks like:
+### The problem: one waiter, many tables
 
-1. **timers** — \`setTimeout\`/\`setInterval\` callbacks whose time has elapsed
-2. **pending callbacks** — some system-level callbacks deferred from the previous loop
-3. **poll** — retrieve new I/O events; executes I/O callbacks (e.g. \`fs\`, sockets)
-4. **check** — \`setImmediate\` callbacks
-5. **close callbacks** — e.g. \`socket.on('close', ...)\`
+Imagine a restaurant with exactly **one waiter** (that's your JavaScript
+program — it can only do one thing at a time). The waiter can't cook, so
+when a table orders food, they drop the ticket in the kitchen and move on
+to the next table instead of standing there waiting. When the kitchen
+finishes an order, it doesn't interrupt the waiter mid-conversation — it
+puts the finished plate on a pickup counter, and the waiter comes back to
+it after finishing whatever they're currently doing.
 
-### Microtasks aren't a phase — they run between everything
+That "one waiter, drop off the work, come back later" pattern is exactly
+how Node.js works. The waiter is your code running on a single thread.
+The kitchen is the underlying system doing slow things (reading files,
+waiting on a timer, talking to a database). The **event loop** is the
+loop the waiter runs: finish what's in hand, check the pickup counters,
+handle what's ready, repeat forever. This is what lets Node handle timers,
+network requests, and file reads without ever spawning extra threads for
+your JS code.
 
-Promise \`.then\`/\`.catch\`/\`.finally\` callbacks and \`queueMicrotask\` go on
-the **microtask queue**, which Node drains **completely** after the
-current operation finishes and before moving to the next phase (and even
-between each callback within a phase). Microtasks can starve the event
-loop if they keep queuing more microtasks — the loop can't advance to
-timers/I/O until the microtask queue is empty.
+### Two kinds of "pickup counters": macrotasks and microtasks
 
-### Order of operations
+Not all pending work is treated equally. There are two queues (lines of
+waiting work) that matter most for revision purposes:
+
+- **Macrotasks** ("regular" tasks) — things like a \`setTimeout\` callback
+  firing, or an I/O callback (e.g. a file finished reading). Node organizes
+  these into ordered **phases** (timers, I/O callbacks, \`setImmediate\`,
+  close callbacks, and a couple of internal ones). Each phase is its own
+  FIFO (first-in-first-out) queue.
+- **Microtasks** — smaller, higher-priority follow-up work, mainly Promise
+  \`.then\`/\`.catch\`/\`.finally\` callbacks and anything you schedule with
+  \`queueMicrotask()\`. These don't wait for a phase — they get squeezed in
+  constantly.
+
+The rule that trips people up: **after any single piece of code finishes
+running, Node fully empties the microtask queue before doing anything
+else** — before the next macrotask, and even before moving to the next
+phase. So microtasks always cut in line ahead of macrotasks.
+
+### Why this can bite you
+
+Because the microtask queue must go completely empty before Node moves
+on, a microtask that keeps scheduling *more* microtasks can block timers
+and I/O from ever running — this is called **starving the event loop**.
+It's a real bug pattern: an unbounded chain of \`.then()\` calls that keeps
+adding more \`.then()\`s can delay a \`setTimeout\` indefinitely, even though
+the timer "fired" long ago.
+
+### Walking through an example
 
 \`\`\`js
-console.log("1: sync");
+console.log("1: sync"); // runs immediately, top to bottom
 
-setTimeout(() => console.log("4: macrotask (timer)"), 0);
+setTimeout(() => console.log("4: macrotask (timer)"), 0); // goes to the timers phase queue
 
-Promise.resolve().then(() => console.log("3: microtask"));
+Promise.resolve().then(() => console.log("3: microtask")); // goes to the microtask queue
 
-console.log("2: sync");
+console.log("2: sync"); // still just running synchronously
+
 // Output: 1, 2, 3, 4
 \`\`\`
 
-Synchronous code always finishes first (the call stack must be empty
-before any queue is processed). Then **all** pending microtasks run.
-Only then does the loop move to the next macrotask phase (here, timers).
+Read it in three passes:
 
-\`process.nextTick()\` (not covered by the WHATWG spec, Node-specific) is
-even higher priority than Promise microtasks — its queue is fully drained
-before the Promise microtask queue on each pass.
+1. **Synchronous code first.** Nothing else can run until every line of
+   plain, non-async code has executed and the call stack (the "currently
+   running code" stack) is empty. That's why both \`console.log\` lines
+   print before anything else — \`setTimeout\` and \`.then()\` only *schedule*
+   work, they don't run it right away.
+2. **Then all microtasks, completely.** Once the synchronous code is
+   done, Node drains the microtask queue. The \`.then()\` callback runs,
+   printing \`"3: microtask"\`.
+3. **Only then, the next macrotask.** With the microtask queue empty,
+   Node finally lets the timers phase run, printing \`"4: macrotask (timer)"\`
+   — even though it was scheduled with a \`0\`ms delay and was technically
+   "ready" the whole time.
+
+### One more wrinkle: \`process.nextTick()\`
+
+Node has a Node-specific queue, \`process.nextTick()\`, that isn't part of
+the official JavaScript spec (it's a Node-only extra). It jumps the queue
+even ahead of Promise microtasks: on every pass, Node fully drains
+\`process.nextTick()\` callbacks *before* touching the Promise microtask
+queue. You'll see it in older Node codebases more than in modern
+Promise-based code, but it's worth recognizing when you spot it.
+
+### Why this matters
+
+When you're debugging "why did my callback run in the wrong order?" or
+"why is my \`setTimeout\` late?", the answer is almost always this
+ordering: **sync code → all microtasks → next macrotask phase**. Knowing
+that lets you predict output correctly and spot the "runaway microtask"
+bug before it ships.
 `.trim(),
   codeExamples: [
     {
