@@ -1,4 +1,4 @@
-export type Track = "node" | "javascript" | "express";
+export type Track = "node" | "javascript" | "express" | "react";
 
 export interface Topic {
   id: string;
@@ -12,6 +12,7 @@ export const TRACKS: { id: Track; label: string }[] = [
   { id: "node", label: "Node.js" },
   { id: "javascript", label: "JavaScript" },
   { id: "express", label: "Express.js" },
+  { id: "react", label: "React" },
 ];
 
 export const CATEGORY_ORDER_BY_TRACK: Record<Track, readonly string[]> = {
@@ -24,6 +25,7 @@ export const CATEGORY_ORDER_BY_TRACK: Record<Track, readonly string[]> = {
     "Metaprogramming & Patterns",
   ],
   express: ["Fundamentals", "Middleware & Routing", "APIs & Data", "Auth & Security", "Reliability & Tooling"],
+  react: ["Fundamentals", "Hooks & State", "Data Flow & Composition", "Performance & Patterns"],
 };
 
 // Kept for the handful of call sites that don't (yet) need to be track-aware.
@@ -74,4 +76,17 @@ export const TOPICS: Topic[] = [
   { id: "express-sessions-auth", title: "Sessions, cookies & auth basics", category: "Auth & Security", order: 10, track: "express" },
   { id: "express-security-basics", title: "Security basics (Helmet, CORS)", category: "Auth & Security", order: 11, track: "express" },
   { id: "express-testing", title: "Testing Express apps", category: "Reliability & Tooling", order: 12, track: "express" },
+
+  { id: "react-jsx-elements", title: "JSX & elements", category: "Fundamentals", order: 1, track: "react" },
+  { id: "react-components-props", title: "Components & props", category: "Fundamentals", order: 2, track: "react" },
+  { id: "react-rendering-keys", title: "Rendering lists & reconciliation", category: "Fundamentals", order: 3, track: "react" },
+  { id: "react-usestate", title: "useState & state updates", category: "Hooks & State", order: 4, track: "react" },
+  { id: "react-useeffect", title: "useEffect & dependency arrays", category: "Hooks & State", order: 5, track: "react" },
+  { id: "react-forms-events", title: "Forms & controlled inputs", category: "Hooks & State", order: 6, track: "react" },
+  { id: "react-lifting-state", title: "Lifting state up", category: "Data Flow & Composition", order: 7, track: "react" },
+  { id: "react-context", title: "Context API", category: "Data Flow & Composition", order: 8, track: "react" },
+  { id: "react-usereducer", title: "useReducer", category: "Data Flow & Composition", order: 9, track: "react" },
+  { id: "react-custom-hooks", title: "Custom hooks", category: "Performance & Patterns", order: 10, track: "react" },
+  { id: "react-memo-performance", title: "React.memo, useMemo & useCallback", category: "Performance & Patterns", order: 11, track: "react" },
+  { id: "react-error-boundaries", title: "Error boundaries", category: "Performance & Patterns", order: 12, track: "react" },
 ];

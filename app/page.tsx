@@ -4,16 +4,17 @@ import { CATEGORY_ORDER_BY_TRACK, TOPICS, TRACKS } from "@/lib/topics";
 export default function Home() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 md:px-10">
-      <p className="text-accent font-mono text-sm">{TOPICS.length} modules across three tracks</p>
+      <p className="text-accent font-mono text-sm">{TOPICS.length} modules across four tracks</p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight md:text-4xl">
-        Node.js, JavaScript & Express Concept Revision
+        Node.js, JavaScript, Express & React Concept Revision
       </h1>
       <p className="text-text-muted mt-3 max-w-2xl">
         Short explanations, real code examples, and hands-on challenges to
         sharpen your Node.js fundamentals — event loop, streams, modules,
         error handling — your core JavaScript fundamentals — closures,
-        prototypes, generators, and more — and Express.js — routing,
-        middleware, REST APIs, and auth.
+        prototypes, generators, and more — Express.js — routing,
+        middleware, REST APIs, and auth — and React — hooks, state, context,
+        and performance.
       </p>
 
       <div className="mt-12 flex flex-col gap-14">

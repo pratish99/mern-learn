@@ -41,6 +41,18 @@ import expressValidation from "./modules/express-09-validation";
 import expressSessionsAuth from "./modules/express-10-sessions-auth";
 import expressSecurityBasics from "./modules/express-11-security-basics";
 import expressTesting from "./modules/express-12-testing";
+import reactJsxElements from "./modules/react-01-jsx-elements";
+import reactComponentsProps from "./modules/react-02-components-props";
+import reactRenderingKeys from "./modules/react-03-rendering-keys";
+import reactUseState from "./modules/react-04-usestate";
+import reactUseEffect from "./modules/react-05-useeffect";
+import reactFormsEvents from "./modules/react-06-forms-events";
+import reactLiftingState from "./modules/react-07-lifting-state";
+import reactContext from "./modules/react-08-context";
+import reactUseReducer from "./modules/react-09-usereducer";
+import reactCustomHooks from "./modules/react-10-custom-hooks";
+import reactMemoPerformance from "./modules/react-11-memo-performance";
+import reactErrorBoundaries from "./modules/react-12-error-boundaries";
 
 export const MODULES: ModuleContent[] = [
   runtimeBasics,
@@ -85,6 +97,18 @@ export const MODULES: ModuleContent[] = [
   expressSessionsAuth,
   expressSecurityBasics,
   expressTesting,
+  reactJsxElements,
+  reactComponentsProps,
+  reactRenderingKeys,
+  reactUseState,
+  reactUseEffect,
+  reactFormsEvents,
+  reactLiftingState,
+  reactContext,
+  reactUseReducer,
+  reactCustomHooks,
+  reactMemoPerformance,
+  reactErrorBoundaries,
 ];
 
 export function getModuleById(id: string): ModuleContent | undefined {
