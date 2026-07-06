@@ -10,13 +10,17 @@ coding challenge in an in-browser editor with automated tests.
 - Next.js (App Router) + TypeScript + Tailwind CSS
 - Framer Motion for animations
 - Monaco Editor for the code editor
-- Zustand (+ localStorage) for client-side progress tracking
+- Zustand for client-side progress tracking (localStorage for guests, MongoDB-synced for signed-in users)
+- MongoDB + Mongoose for accounts and per-user progress
 - Node's built-in `vm` module, in an API route, for sandboxed code execution
+
+See [`docs/`](./docs) for architecture, auth/progress, and content-authoring details.
 
 ## Running locally
 
 ```bash
 npm install
+cp .env.local.example .env.local   # fill in MONGODB_URI and JWT_SECRET
 npm run dev
 ```
 
@@ -41,10 +45,17 @@ timers, `Promise`, `EventEmitter`, `Buffer`, stream classes, etc.), with a
 ## Content
 
 Module content (explanation, examples, challenge, test cases) lives in
-`content/modules/*.ts` as plain typed data — no database or CMS. A dev
-script validates that every challenge's reference solution actually
-passes its own test cases:
+`content/modules/*.ts` as plain typed data — no CMS. A dev script validates
+that every challenge's reference solution actually passes its own test
+cases:
 
 ```bash
 node --experimental-strip-types --no-warnings scripts/validate-content.mjs
 ```
+
+## Auth & progress
+
+Progress is tracked locally for guests, and synced to MongoDB for
+signed-in users (email/password, JWT session cookie). See
+[`docs/auth-and-progress.md`](./docs/auth-and-progress.md) for the full
+design, including the guest → account merge behavior on login/signup.
