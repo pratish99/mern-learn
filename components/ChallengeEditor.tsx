@@ -58,6 +58,10 @@ export default function ChallengeEditor({
   const [result, setResult] = useState<RunResult | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [celebrationId, setCelebrationId] = useState<number | null>(null);
+  const [solutionCode, setSolutionCode] = useState<string | null>(null);
+  const [solutionVisible, setSolutionVisible] = useState(false);
+  const [solutionLoading, setSolutionLoading] = useState(false);
+  const [solutionError, setSolutionError] = useState<string | null>(null);
   const markViewed = useProgressStore((s) => s.markViewed);
   const markAttempted = useProgressStore((s) => s.markAttempted);
   const markCompleted = useProgressStore((s) => s.markCompleted);
@@ -99,6 +103,38 @@ export default function ChallengeEditor({
       setRequestError("Could not reach the code runner. Check your connection and try again.");
     } finally {
       setRunning(false);
+    }
+  }
+
+  async function toggleSolution() {
+    if (solutionVisible) {
+      setSolutionVisible(false);
+      return;
+    }
+    if (solutionCode) {
+      setSolutionVisible(true);
+      return;
+    }
+    setSolutionLoading(true);
+    setSolutionError(null);
+    try {
+      const res = await fetch("/api/solution", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moduleId }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setSolutionError(body?.error ?? `Request failed with status ${res.status}.`);
+        return;
+      }
+      const data: { solutionCode: string } = await res.json();
+      setSolutionCode(data.solutionCode);
+      setSolutionVisible(true);
+    } catch {
+      setSolutionError("Could not fetch the solution. Check your connection and try again.");
+    } finally {
+      setSolutionLoading(false);
     }
   }
 
@@ -146,6 +182,13 @@ export default function ChallengeEditor({
               Reset
             </button>
             <button
+              onClick={toggleSolution}
+              disabled={solutionLoading}
+              className="text-text-faint hover:text-text text-xs transition-colors disabled:opacity-50"
+            >
+              {solutionLoading ? "Loading…" : solutionVisible ? "Hide answer" : "Show answer"}
+            </button>
+            <button
               onClick={runCode}
               disabled={running}
               title="Run tests (Ctrl/Cmd+Enter)"
@@ -190,6 +233,29 @@ export default function ChallengeEditor({
           </AnimatePresence>
         </div>
       </div>
+
+      <AnimatePresence>
+        {solutionVisible && solutionCode && (
+          <motion.div
+            key="solution"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="border-border bg-surface overflow-hidden rounded-lg border"
+          >
+            <div className="border-border bg-bg-elevated text-text-muted border-b px-4 py-2 text-xs font-medium">
+              Actual answer
+            </div>
+            <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-6">
+              <code>{solutionCode}</code>
+            </pre>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {solutionError && (
+        <p className="text-error text-xs">{solutionError}</p>
+      )}
 
       <AnimatePresence mode="wait">
         {requestError && (
