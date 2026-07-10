@@ -1,9 +1,9 @@
 # Architecture
 
 `mern-learn` is a single Next.js 16 (App Router) application — an interactive
-revision/learning site for Node.js, JavaScript, Express.js, React, and
-MongoDB concepts. It is **one app, not a collection of separate practice
-projects**, despite commit history suggesting otherwise.
+revision/learning site for Node.js, JavaScript, Express.js, React,
+MongoDB, and Docker concepts. It is **one app, not a collection of separate
+practice projects**, despite commit history suggesting otherwise.
 
 ## Stack
 

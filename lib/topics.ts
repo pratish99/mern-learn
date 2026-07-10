@@ -1,4 +1,4 @@
-export type Track = "node" | "javascript" | "express" | "react" | "mongodb";
+export type Track = "node" | "javascript" | "express" | "react" | "mongodb" | "docker";
 
 export interface Topic {
   id: string;
@@ -14,6 +14,7 @@ export const TRACKS: { id: Track; label: string }[] = [
   { id: "express", label: "Express.js" },
   { id: "react", label: "React" },
   { id: "mongodb", label: "MongoDB" },
+  { id: "docker", label: "Docker" },
 ];
 
 export const CATEGORY_ORDER_BY_TRACK: Record<Track, readonly string[]> = {
@@ -34,6 +35,7 @@ export const CATEGORY_ORDER_BY_TRACK: Record<Track, readonly string[]> = {
     "Aggregation & Indexing",
     "Mongoose & Production",
   ],
+  docker: ["Fundamentals"],
 };
 
 // Kept for the handful of call sites that don't (yet) need to be track-aware.
@@ -110,4 +112,6 @@ export const TOPICS: Topic[] = [
   { id: "mongodb-mongoose-schemas", title: "Mongoose schemas & models", category: "Mongoose & Production", order: 10, track: "mongodb" },
   { id: "mongodb-validation-middleware", title: "Mongoose validation & middleware (hooks)", category: "Mongoose & Production", order: 11, track: "mongodb" },
   { id: "mongodb-transactions", title: "Transactions & atomic operations", category: "Mongoose & Production", order: 12, track: "mongodb" },
+
+  { id: "docker-architecture", title: "Docker architecture", category: "Fundamentals", order: 1, track: "docker" },
 ];

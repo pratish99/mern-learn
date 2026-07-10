@@ -45,9 +45,9 @@ grouping, and progress-percentage calculations. It is **not** derived from
 `id` here must match its corresponding file's exported `id` in
 `content/modules/`.
 
-Five tracks exist: `node`, `javascript`, `express`, `react`, `mongodb`
-(`Track` type in `lib/topics.ts`). Each track has its own ordered list of
-categories in `CATEGORY_ORDER_BY_TRACK`.
+Six tracks exist: `node`, `javascript`, `express`, `react`, `mongodb`,
+`docker` (`Track` type in `lib/topics.ts`). Each track has its own ordered
+list of categories in `CATEGORY_ORDER_BY_TRACK`.
 
 ## Adding a new module
 

@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 A single Next.js 16 (App Router) app — an interactive revision tool for
-Node.js, JavaScript, Express.js, React, and MongoDB concepts. Despite git
+Node.js, JavaScript, Express.js, React, MongoDB, and Docker concepts. Despite git
 history reading like separate modules ("added express.js", "added react
 module"), this is **one app, not separate practice projects**. See
 `docs/architecture.md` for the full folder layout.

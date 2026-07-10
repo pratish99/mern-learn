@@ -65,6 +65,7 @@ import mongodbAggregationAdvanced from "./modules/mongodb-09-aggregation-advance
 import mongodbMongooseSchemas from "./modules/mongodb-10-mongoose-schemas";
 import mongodbValidationMiddleware from "./modules/mongodb-11-validation-middleware";
 import mongodbTransactions from "./modules/mongodb-12-transactions";
+import dockerArchitecture from "./modules/docker-01-architecture";
 
 export const MODULES: ModuleContent[] = [
   runtimeBasics,
@@ -133,6 +134,7 @@ export const MODULES: ModuleContent[] = [
   mongodbMongooseSchemas,
   mongodbValidationMiddleware,
   mongodbTransactions,
+  dockerArchitecture,
 ];
 
 export function getModuleById(id: string): ModuleContent | undefined {
