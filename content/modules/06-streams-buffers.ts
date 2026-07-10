@@ -92,6 +92,14 @@ fs.createReadStream("big.log")
 // to match — you never have to think about backpressure yourself.
 \`\`\`
 
+\`\`\`mermaid
+flowchart LR
+  R["Readable stream"] -->|"chunk"| T["Transform stream (e.g. zlib.createGzip)"]
+  T -->|"chunk"| W["Writable stream"]
+  W -.->|"backpressure: pause"| T
+  T -.->|"backpressure: pause"| R
+\`\`\`
+
 ### Buffer: what a "chunk" actually is
 
 When a chunk of data arrives from a stream, what type is it? By default,

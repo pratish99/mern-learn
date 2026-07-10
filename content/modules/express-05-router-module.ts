@@ -53,6 +53,14 @@ know its own base path — that decision belongs entirely to whoever
 mounts it, which means the same router could be mounted at
 \`/api/v2/users\` later with zero changes inside \`routes/users.js\`.
 
+\`\`\`mermaid
+flowchart LR
+  Req["GET /api/orders/42"] --> App["app"]
+  App -->|"app.use('/api/users', usersRouter)"| UsersRouter["usersRouter"]
+  App -->|"app.use('/api/orders', ordersRouter)"| OrdersRouter["ordersRouter"]
+  OrdersRouter -->|"remainder '/:id' matches"| Handler["router.get('/:id', ...)"]
+\`\`\`
+
 ### Why bother?
 
 Splitting routes into per-resource routers (one file for users, one

@@ -13,6 +13,15 @@ database**: instead of rows in fixed-column tables (the relational/SQL
 model), MongoDB stores **documents** — JSON-like objects — grouped
 into **collections**.
 
+\`\`\`mermaid
+flowchart TD
+  DB["Database: shop"] --> C1["Collection: products"]
+  DB --> C2["Collection: users"]
+  C1 --> D1["Document (BSON): { _id, name: Keyboard, price: 49 }"]
+  C1 --> D2["Document (BSON): { _id, name: Notebook, color: red }"]
+  C2 --> D3["Document (BSON): { _id, name: Ada }"]
+\`\`\`
+
 ### Documents are just (BSON) objects
 
 A document looks exactly like a JavaScript object literal:

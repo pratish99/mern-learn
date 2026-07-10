@@ -35,6 +35,13 @@ engine:
    prototype is \`null\` (the end of the chain, usually \`Object.prototype\`
    itself).
 
+\`\`\`mermaid
+flowchart LR
+  Obj["obj (own property?)"] -->|"not found"| Proto["obj's prototype"]
+  Proto -->|"not found"| ObjProto["Object.prototype"]
+  ObjProto -->|"not found"| NullEnd["null (end of chain)"]
+\`\`\`
+
 This is why you can call \`.toString()\` or \`.hasOwnProperty()\` on almost
 any object even though you never wrote those methods yourself — they
 live on \`Object.prototype\`, and the chain finds them.

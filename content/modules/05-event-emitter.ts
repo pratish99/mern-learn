@@ -65,6 +65,25 @@ in the order they were attached — nothing gets deferred to "later." Your
 code that called \`emit\` won't move on to its next line until every
 listener has finished running.
 
+\`\`\`mermaid
+sequenceDiagram
+  participant Code as Your code
+  participant E as EventEmitter
+  participant A as Listener A
+  participant B as Listener B
+  participant C as Listener C
+  Code->>E: on("event", A)
+  Code->>E: on("event", B)
+  Code->>E: on("event", C)
+  Code->>E: emit("event")
+  E->>A: call A()
+  A-->>E: return
+  E->>B: call B()
+  B-->>E: return
+  E->>C: call C()
+  C-->>E: return
+\`\`\`
+
 ### The one event you should never ignore: \`"error"\`
 
 Most event names are just plain strings you make up — \`"ring"\`,

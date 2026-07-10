@@ -49,6 +49,17 @@ still need it. This is the whole trick behind closures: the variable
 isn't copied, it's *remembered by reference*, tied to the exact scope
 where the function was defined.
 
+\`\`\`mermaid
+flowchart TD
+  A["outer() is called"] --> B["secret = 'shh' created in outer's scope"]
+  B --> C["inner() defined here - closes over secret"]
+  C --> D["outer returns inner (as revealSecret)"]
+  D --> E["outer() finishes - its scope would normally be gone"]
+  E --> F["but inner keeps a live reference to secret"]
+  F --> G["revealSecret() called later"]
+  G --> H["logs 'shh' - secret is still reachable"]
+\`\`\`
+
 ### The classic example: a counter with private state
 
 Closures are how JavaScript fakes "private" variables without needing a

@@ -14,6 +14,16 @@ pre-sorted data structure (a B-tree, conceptually similar to the
 index at the back of a book) that lets MongoDB jump straight to the
 documents that match a field's value instead of scanning everything.
 
+\`\`\`mermaid
+flowchart TD
+  subgraph Scan["Collection scan (no index)"]
+    Q1["Query: category = electronics"] --> S1["Check doc 1"] --> S2["Check doc 2"] --> S3["Check doc 3"] --> S4["... check every remaining doc"]
+  end
+  subgraph Index["Index-supported lookup"]
+    Q2["Query: category = electronics"] --> I1["Look up category in index"] --> I2["Jump straight to matching docs"]
+  end
+\`\`\`
+
 ### Creating an index
 
 \`\`\`js

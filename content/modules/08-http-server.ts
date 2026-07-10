@@ -44,6 +44,16 @@ Nothing here is magic: you check \`req.method\` / \`req.url\` yourself,
 decide on a status code, and call \`res.end()\` to send the response and
 finish it.
 
+\`\`\`mermaid
+sequenceDiagram
+  participant C as Client
+  participant S as Node http server
+  C->>S: HTTP request (method, url, headers, body)
+  S->>S: run request callback: inspect req, decide response
+  S->>C: res.writeHead(status, headers)
+  S->>C: res.end(body)
+\`\`\`
+
 ### \`req\` and \`res\` are streams, not strings
 
 This is the part that trips people up most. A **stream** is data that

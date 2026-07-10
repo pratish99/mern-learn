@@ -91,6 +91,14 @@ worker.on("message", (result) => console.log(result)); // it finished — here's
 worker.on("error", (err) => console.error(err));        // it threw an error
 \`\`\`
 
+\`\`\`mermaid
+flowchart LR
+  Main["Main process (your app)"] -->|"fork(modulePath) / new Worker(file)"| Child["Child process / worker thread"]
+  Main -->|"child.send(data) / worker.postMessage(data)"| Child
+  Child -->|"process.send(result) / parentPort.postMessage(result)"| Main
+  Child -->|"on('exit') / on('error')"| Main
+\`\`\`
+
 Threads are cheaper to start than whole processes, which makes
 \`worker_threads\` the usual choice for CPU-bound work — hashing, parsing
 large files, image processing — that would otherwise block your main

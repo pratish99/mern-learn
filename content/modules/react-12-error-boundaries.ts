@@ -43,6 +43,19 @@ If \`Sidebar\` (or anything inside it) throws while rendering,
 fallback UI instead, and the rest of the page — everything outside the
 boundary — stays intact and interactive.
 
+\`\`\`mermaid
+flowchart BT
+  Leaf["Deeply nested component throws during render"] --> Mid["Intermediate component"]
+  Mid --> Boundary["Nearest ErrorBoundary (catches it)"]
+  Boundary --> Root["App root (untouched)"]
+  Boundary -.->|"replaces the crashed subtree with"| Fallback["Fallback UI"]
+\`\`\`
+
+The error propagates upward through the tree until it reaches the
+*nearest* ancestor that is an error boundary — components further up
+(like the app root) never see it at all, since the boundary swaps in its
+fallback instead of letting the failure keep bubbling.
+
 ### Error boundaries must be class components
 
 There is currently no hook equivalent of \`getDerivedStateFromError\` /

@@ -54,6 +54,26 @@ It's a real bug pattern: an unbounded chain of \`.then()\` calls that keeps
 adding more \`.then()\`s can delay a \`setTimeout\` indefinitely, even though
 the timer "fired" long ago.
 
+### The cycle, visualized
+
+\`\`\`mermaid
+flowchart TD
+  Sync["Run synchronous code"] --> Empty{"Call stack empty?"}
+  Empty -->|"No"| Sync
+  Empty -->|"Yes"| MT1["Drain process.nextTick, then Promise microtasks, fully"]
+  MT1 --> Timers["Timers phase: setTimeout / setInterval callbacks"]
+  Timers --> MT2["Drain microtasks fully"]
+  MT2 --> Pending["Pending callbacks phase"]
+  Pending --> MT3["Drain microtasks fully"]
+  MT3 --> Poll["Poll / I-O phase"]
+  Poll --> MT4["Drain microtasks fully"]
+  MT4 --> Check["Check phase: setImmediate callbacks"]
+  Check --> MT5["Drain microtasks fully"]
+  MT5 --> Close["Close callbacks phase"]
+  Close --> MT6["Drain microtasks fully"]
+  MT6 --> Timers
+\`\`\`
+
 ### Walking through an example
 
 \`\`\`js

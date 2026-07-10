@@ -17,6 +17,21 @@ own "am I open?" boolean, move that state to the nearest common
 ancestor, and have it pass down both the current value and a callback
 that lets children request a change.
 
+\`\`\`mermaid
+flowchart TD
+  Parent["Accordion (owns openId state)"]
+  Parent -->|"props: isOpen, onToggle"| PanelA["Panel A"]
+  Parent -->|"props: isOpen, onToggle"| PanelB["Panel B"]
+  PanelA -.->|"onToggle(): 'I was clicked'"| Parent
+  PanelB -.->|"onToggle(): 'I was clicked'"| Parent
+\`\`\`
+
+The dashed arrows are intentionally different from the solid ones: a
+panel never hands \`Accordion\` a new state value directly, only an
+"I was clicked" signal via the callback prop — \`Accordion\` alone decides
+what that means for \`openId\`, and the result flows back down as props on
+the next render.
+
 \`\`\`jsx
 function Accordion({ items }) {
   const [openId, setOpenId] = useState(null);

@@ -18,6 +18,30 @@ different depths need, without manually forwarding props through every
 level: a \`Provider\` makes a value available to its entire subtree, and
 any descendant can read it directly.
 
+\`\`\`mermaid
+flowchart TD
+  subgraph Drilling["Prop drilling"]
+    direction TD
+    A1["App (owns theme)"] -->|"theme prop"| B1["Sidebar (doesn't use theme)"]
+    B1 -->|"theme prop"| C1["Nav (doesn't use theme)"]
+    C1 -->|"theme prop"| D1["Button (uses theme)"]
+  end
+  subgraph WithContext["Context"]
+    direction TD
+    A2["ThemeContext.Provider"] --> B2["Sidebar"]
+    B2 --> C2["Nav"]
+    C2 --> D2["Button (useContext)"]
+    A2 -.->|"value read directly"| D2
+  end
+\`\`\`
+
+On the left, \`Sidebar\` and \`Nav\` are forced to accept and forward a
+\`theme\` prop they never read themselves, purely because they sit between
+the provider and the consumer. On the right, the same two components
+stay untouched by \`theme\` entirely — \`Button\` reads the value straight
+from the nearest \`Provider\` above it, regardless of how many components
+sit in between.
+
 \`\`\`jsx
 const ThemeContext = createContext("light");
 

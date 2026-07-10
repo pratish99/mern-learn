@@ -57,6 +57,27 @@ provided," but for lists that can reorder or have items removed from the
 middle, it reintroduces the exact position-based mismatching that keys
 exist to prevent — it's really no better than having no key at all.
 
+\`\`\`mermaid
+flowchart TD
+  subgraph StableId["Keyed by stable id: reorder tracked correctly"]
+    direction LR
+    A1["key=todo-1: Buy milk"] -.->|same key, matched| A2["key=todo-1: Buy milk"]
+    B1["key=todo-2: Walk dog"] -.->|same key, matched| B2["key=todo-2: Walk dog"]
+  end
+  subgraph IndexKey["Keyed by index: reorder misread as edits"]
+    direction LR
+    I0["key=0: Buy milk"] -->|"same key, different item"| J0["key=0: Walk dog"]
+    I1["key=1: Walk dog"] -->|"same key, different item"| J1["key=1: Buy milk"]
+  end
+\`\`\`
+
+In the top row, the two items swap position but keep their keys, so
+React matches each \`<li>\` to its old self and simply moves it — any
+per-item state travels with it. In the bottom row, the same swap leaves
+the *keys* in their original slots (0, 1), so React thinks item 0 and
+item 1 stayed put and just had their content edited in place, when in
+reality the two items traded places.
+
 ### Why this matters
 
 Reconciliation is why React feels fast without you manually diffing the

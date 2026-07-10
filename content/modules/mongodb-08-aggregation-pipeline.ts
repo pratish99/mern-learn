@@ -30,6 +30,11 @@ then sort the groups by total, highest first. Each stage only ever
 sees the *output* of the previous one — \`$group\` never sees the
 orders that \`$match\` already filtered out.
 
+\`\`\`mermaid
+flowchart LR
+  In["All orders"] --> M["$match: status = completed"] --> G["$group: by category, sum amount"] --> S["$sort: total descending"] --> Out["Sorted per-category totals"]
+\`\`\`
+
 ### $match: filtering, as a stage
 
 \`{ $match: { status: "completed" } }\` uses the exact same filter

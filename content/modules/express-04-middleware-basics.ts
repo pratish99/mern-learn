@@ -52,6 +52,15 @@ app.get("/dashboard", (req, res) => {
 });
 \`\`\`
 
+\`\`\`mermaid
+flowchart LR
+  Req["Incoming request"] --> M1["logger(req, res, next)"]
+  M1 -->|"calls next()"| M2["requireAuth(req, res, next)"]
+  M2 -->|"calls next()"| RH["Route handler: /dashboard"]
+  RH --> Res["Response sent"]
+  M2 -->|"no next() - res.status(401).send(...)"| Short["Response sent (401 Unauthorized)"]
+\`\`\`
+
 A route handler itself (the last argument to \`app.get\`, etc.) is
 really just the final middleware in the chain — it just usually
 doesn't call \`next()\`, because there's nothing left to hand off to.

@@ -91,6 +91,21 @@ it.next(); // { value: 3, done: false }
 it.next(); // { value: undefined, done: true }
 \`\`\`
 
+\`\`\`mermaid
+sequenceDiagram
+  participant Caller
+  participant Gen as Generator
+  Caller->>Gen: next()
+  Gen->>Gen: runs until it hits yield
+  Gen-->>Caller: "{ value, done: false }"
+  Caller->>Gen: next()
+  Gen->>Gen: resumes right after yield, runs to next yield
+  Gen-->>Caller: "{ value, done: false }"
+  Caller->>Gen: next()
+  Gen->>Gen: resumes and runs to completion
+  Gen-->>Caller: "{ value: undefined, done: true }"
+\`\`\`
+
 ### Infinite generators are fine — as long as something knows when to stop
 
 Because a generator only computes the next value when asked, there's

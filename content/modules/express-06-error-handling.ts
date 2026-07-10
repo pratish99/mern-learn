@@ -44,6 +44,15 @@ app.use((err, req, res, next) => {
 });
 \`\`\`
 
+\`\`\`mermaid
+flowchart LR
+  Req["Request"] --> M1["Middleware (req, res, next)"]
+  M1 -->|"next()"| RH["Route handler (req, res, next)"]
+  RH -->|"next(err) or throw"| Skip["Skips remaining normal middleware/routes"]
+  Skip -.-> EH["Error handler (err, req, res, next)"]
+  EH --> Res["Response sent (e.g. 500)"]
+\`\`\`
+
 Error handlers are registered with \`app.use\` just like normal
 middleware, but by convention go at the very **end** of the file,
 after every route — Express finds the nearest one that comes *after*

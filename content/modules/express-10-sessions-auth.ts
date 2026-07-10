@@ -44,6 +44,23 @@ user's actual data:
 3. Logging out just deletes that entry from the store — the cookie
    itself becomes meaningless immediately.
 
+\`\`\`mermaid
+sequenceDiagram
+  participant C as Client
+  participant S as Server
+  participant DB as Session store
+
+  C->>S: POST /login (username, password)
+  S->>S: verify credentials
+  S->>DB: create session { userId }
+  DB-->>S: sessionId
+  S-->>C: Set-Cookie: sid=sessionId
+  C->>S: GET /profile (Cookie: sid=sessionId)
+  S->>DB: look up sessionId
+  DB-->>S: { userId }
+  S-->>C: 200 profile data
+\`\`\`
+
 \`\`\`js
 const express = require("express");
 const session = require("express-session");

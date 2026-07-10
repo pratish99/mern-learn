@@ -42,6 +42,13 @@ This difference is the root of almost every \`var\`-related bug: people
 expect the variable to be trapped inside the \`if\` or \`for\` block, but
 with \`var\` it isn't.
 
+\`\`\`mermaid
+flowchart TD
+  Block["Block scope: if-block (let b)"] --> Func["Function scope: example() (var a)"]
+  Func --> Global["Global scope"]
+  Lookup["Looking up a variable"] -.->|"walks outward until found"| Block
+\`\`\`
+
 ### Hoisting: declarations are processed before your code runs
 
 **Hoisting** describes how JavaScript sets up variables and functions

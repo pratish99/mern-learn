@@ -27,6 +27,21 @@ Host elements (\`"div"\`, \`"p"\`, ...) are the leaves where this recursion
 bottoms out into real DOM nodes; components are just more indirection on
 top of the same tree of plain objects.
 
+Props only ever flow one way — down the tree, from parent to child:
+
+\`\`\`mermaid
+flowchart TD
+  Parent["Parent (owns the data)"] -->|"props: title"| ChildA["ChildA"]
+  Parent -->|"props: title, isActive"| ChildB["ChildB"]
+\`\`\`
+
+\`ChildA\` and \`ChildB\` each receive whatever \`Parent\` decides to pass
+them; neither child can reach back up and hand a value to \`Parent\`, and
+neither can see what the other received. That asymmetry is the whole
+reason the next section's rule ("never mutate props") is safe to rely
+on — a child could never make its mutation visible to anyone upstream
+even if it tried.
+
 ### Props are read-only inputs, not internal state
 
 A component must never reassign or mutate the \`props\` object it

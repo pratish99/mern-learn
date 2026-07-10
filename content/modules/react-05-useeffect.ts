@@ -65,6 +65,24 @@ calls that returned function right before the effect runs again (and on
 unmount) — this is how subscriptions, timers, and event listeners get
 torn down so they don't leak or double-fire.
 
+\`\`\`mermaid
+flowchart TD
+  Commit["React commits a render"] --> Run["Effect runs"]
+  Run --> Next["Component re-renders later"]
+  Next --> Check{"Did dependencies change?"}
+  Check -->|Yes| Cleanup["Cleanup from the previous effect runs"]
+  Cleanup --> Run
+  Check -->|No| Skip["Effect is skipped this time"]
+  Skip --> Next
+  Next --> Unmount["Component unmounts"]
+  Unmount --> FinalCleanup["Final cleanup runs"]
+\`\`\`
+
+Notice cleanup always runs using the closure from the effect it belongs
+to, right before that effect's replacement takes over — that's what lets
+a subscription from render N be torn down before the subscription for
+render N+1 is created, instead of leaking the old one.
+
 ### Why this matters
 
 The dependency array isn't a list of "things that trigger the effect" in

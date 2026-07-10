@@ -42,6 +42,22 @@ This is the same "functional update" idea from \`useState\` — never mutate
 \`state\` in place, always return a new object — just generalized from "one
 value, one updater function" to "one value, a menu of named transitions."
 
+\`\`\`mermaid
+sequenceDiagram
+  participant UI as Component
+  participant D as dispatch
+  participant R as cartReducer
+  UI->>D: dispatch({ type: "ADD_ITEM", id })
+  D->>R: cartReducer(state, action)
+  R-->>D: newState
+  D-->>UI: React re-renders with newState
+\`\`\`
+
+\`dispatch\` doesn't compute anything itself — it just hands the current
+\`state\` and the \`action\` off to \`cartReducer\`, which is the only place
+that decides what the new state looks like. React then re-renders the
+component with whatever the reducer returned.
+
 ### Actions describe intent, not the new state
 
 A component calling \`dispatch({ type: "ADD_ITEM", id: "apple" })\` doesn't

@@ -136,6 +136,17 @@ binding (rule 1) when \`setTimeout\` calls it — losing \`user\` entirely.
 This is why arrow functions are so popular for callbacks nested inside
 methods.
 
+\`\`\`mermaid
+flowchart TD
+  Start["How was the function called?"] --> Arrow{"Is it an arrow function?"}
+  Arrow -->|"yes"| ArrowThis["this = enclosing scope's this (rule 4)"]
+  Arrow -->|"no"| Explicit{"Called via .call / .apply / .bind?"}
+  Explicit -->|"yes"| ExplicitThis["this = the object passed in (rule 3)"]
+  Explicit -->|"no"| Implicit{"Called as obj.method()?"}
+  Implicit -->|"yes"| ImplicitThis["this = obj, left of the dot (rule 2)"]
+  Implicit -->|"no"| DefaultThis["this = undefined, or global object in sloppy mode (rule 1)"]
+\`\`\`
+
 ### Why this matters
 
 The "detached method" bug from rule 2 is one of the most common real-world

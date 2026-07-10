@@ -49,6 +49,14 @@ const proxy = new Proxy(target, {
 proxy.name; // logs: reading "name"  → returns "Ada"
 \`\`\`
 
+\`\`\`mermaid
+flowchart LR
+  Code["Your code: proxy.name"] --> Trap["handler.get trap"]
+  Trap -->|"intercepts, then forwards"| Target["target object { name: 'Ada' }"]
+  Target -->|"real value"| Trap
+  Trap -->|"returned value"| Code
+\`\`\`
+
 ### Forwarding correctly: why Reflect exists
 
 Notice the trap above still has to do *something* to produce the actual

@@ -1,4 +1,6 @@
+import type { ReactElement } from "react";
 import ReactMarkdown, { type Components } from "react-markdown";
+import MermaidDiagram from "./MermaidDiagram";
 
 const components: Components = {
   h2: ({ children }) => (
@@ -44,11 +46,22 @@ const components: Components = {
       </code>
     );
   },
-  pre: ({ children }) => (
-    <pre className="border-border bg-surface text-text mb-4 overflow-x-auto rounded-lg border p-4 font-mono text-[13px] leading-6">
-      {children}
-    </pre>
-  ),
+  pre: ({ children }) => {
+    const codeChild = children as ReactElement<{
+      className?: string;
+      children?: string;
+    }>;
+    const className = codeChild?.props?.className ?? "";
+    if (className.includes("language-mermaid")) {
+      const chart = String(codeChild.props.children ?? "").replace(/\n$/, "");
+      return <MermaidDiagram chart={chart} />;
+    }
+    return (
+      <pre className="border-border bg-surface text-text mb-4 overflow-x-auto rounded-lg border p-4 font-mono text-[13px] leading-6">
+        {children}
+      </pre>
+    );
+  },
 };
 
 export default function Markdown({ content }: { content: string }) {

@@ -23,6 +23,18 @@ the product's reviews together, storing reviews embedded inside the
 product document can mean one query instead of a join. This is a real
 trade-off, not a free lunch — covered in depth in the next module.
 
+\`\`\`mermaid
+flowchart TD
+  subgraph Embed["Embedding: one document"]
+    P1["Product: { _id: 1, name: Keyboard, reviews: [ ... ] }"]
+  end
+  subgraph Ref["Referencing: two documents linked by id"]
+    P2["Product: { _id: 1, name: Keyboard }"]
+    R1["Review: { _id: 9, productId: 1, text: Great! }"]
+    R1 -- "productId references _id" --> P2
+  end
+\`\`\`
+
 ### Enforcing structure with $jsonSchema
 
 If you do want the database itself to reject malformed documents, a

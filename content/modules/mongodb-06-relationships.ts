@@ -61,6 +61,19 @@ lean toward embedding. A user's orders (potentially thousands over
 time, often listed on their own) lean toward referencing. Most real
 schemas end up as a mix of both, decided field by field.
 
+\`\`\`mermaid
+erDiagram
+  PRODUCT ||--o{ REVIEW : embeds
+  USER ||--o{ ORDER : references
+\`\`\`
+
+The \`PRODUCT\`-\`REVIEW\` relationship above is a one-to-many that's
+**embedded** (reviews live inside the product document, as shown
+earlier). The \`USER\`-\`ORDER\` relationship is also one-to-many, but
+**referenced** (each order stores a \`userId\` pointing back at its
+user). Same shape of relationship, two different storage strategies —
+the deciding factor is the table above, not the cardinality itself.
+
 ### One-to-many and many-to-many both use references the same way
 
 A single reference field (\`order.userId\`) models one-to-many (many
